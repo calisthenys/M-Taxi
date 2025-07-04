@@ -37,15 +37,25 @@
             <p class="text-sm text-gray-500">Conectando você ao seu destino</p>
           </div>
         </div>
-        <div class="flex gap-2">
-          <button id="btn-passageiro" onclick="mostrarInterface('passageiro')" 
-                  class="px-4 py-2 bg-primary text-white rounded-lg font-medium transition-all hover:bg-gray-800">
-            Passageiro
-          </button>
-          <button id="btn-motorista" onclick="mostrarInterface('motorista')" 
-                  class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium transition-all hover:bg-gray-50">
-            Motorista
-          </button>
+        <div class="flex items-center gap-3">
+          <!-- Indicador de Notificações -->
+          <div id="notification-badge" class="relative hidden">
+            <svg class="w-6 h-6 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 19V20H3V19L5 17V11C5 7.9 7 5.2 10 4.3V4C10 2.9 10.9 2 12 2S14 2.9 14 4V4.3C17 5.2 19 7.9 19 11V17L21 19ZM12 22C10.9 22 10 21.1 10 20H14C14 21.1 13.1 22 12 22Z"/>
+            </svg>
+            <span id="badge-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
+          </div>
+          
+          <div class="flex gap-2">
+            <button id="btn-passageiro" onclick="mostrarInterface('passageiro')" 
+                    class="px-4 py-2 bg-primary text-white rounded-lg font-medium transition-all hover:bg-gray-800">
+              Passageiro
+            </button>
+            <button id="btn-motorista" onclick="mostrarInterface('motorista')" 
+                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium transition-all hover:bg-gray-50">
+              Motorista
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -235,6 +245,49 @@
     </div>
   </div>
 
+  <!-- Modal de Notificação de Corrida -->
+  <div id="modal-notificacao" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 m-4 max-w-sm w-full transform transition-all">
+      <div class="text-center">
+        <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">🚨 Nova Corrida!</h3>
+        <p class="text-gray-600 mb-4">Uma nova corrida está disponível</p>
+        
+        <div id="detalhes-corrida-modal" class="bg-gray-50 rounded-xl p-4 mb-6 text-left">
+          <p class="font-semibold text-gray-900 mb-1">📍 <span id="modal-origem">-</span></p>
+          <p class="text-gray-600 mb-2">🎯 <span id="modal-destino">-</span></p>
+          <p class="text-lg font-bold text-green-600">💰 R$ 5,00</p>
+        </div>
+
+        <div class="flex gap-3">
+          <button id="btn-recusar-modal" onclick="fecharModalNotificacao()" 
+                  class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-3 rounded-xl transition-all">
+            Recusar
+          </button>
+          <button id="btn-aceitar-modal" onclick="aceitarCorridaModal()" 
+                  class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl transition-all">
+            Aceitar
+          </button>
+        </div>
+        
+        <div class="mt-4">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <p class="text-sm text-yellow-800">
+              ⏰ Tempo restante: <span id="tempo-restante" class="font-bold">30s</span>
+            </p>
+            <div class="w-full bg-yellow-200 rounded-full h-2 mt-2">
+              <div id="barra-tempo" class="bg-yellow-500 h-2 rounded-full transition-all duration-1000" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notifications -->
   <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
@@ -247,6 +300,13 @@
     let statusMotorista = false;
     let estatisticas = JSON.parse(localStorage.getItem('estatisticas') || '{"corridas": 0, "ganhos": 0}');
     let localizacaoAtual = null;
+    
+    // Variáveis para notificações
+    let corridaNotificacao = null;
+    let timerNotificacao = null;
+    let tempoRestante = 30;
+    let audioNotificacao = null;
+    let notificacoesAtivas = 0;
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', function() {
@@ -257,6 +317,7 @@
       atualizarEstatisticas();
       verificarCorridasPendentes();
       configurarAutoComplete();
+      inicializarNotificacoes();
     });
 
     // Navegação entre interfaces
@@ -824,12 +885,158 @@
       });
     }
 
-    // Funções auxiliares
+    // Funções de Notificação
+    function inicializarNotificacoes() {
+      // Solicitar permissão para notificações
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+      
+      // Criar áudio para notificação (usando Web Audio API)
+      criarAudioNotificacao();
+    }
+
+    function criarAudioNotificacao() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Função para tocar som de notificação
+        window.tocarSomNotificacao = function() {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+          oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.3);
+        };
+      } catch (e) {
+        console.log('Áudio não disponível');
+      }
+    }
+
     function notificarMotoristasOnline(corrida) {
-      // Simular notificação em tempo real
+      // Atualizar lista de corridas
       setTimeout(() => {
         atualizarCorridasDisponiveis();
       }, 1000);
+      
+      // Se há motorista logado e online, mostrar notificação
+      if (motoristaLogado && statusMotorista) {
+        mostrarNotificacaoCorrida(corrida);
+      }
+    }
+
+    function mostrarNotificacaoCorrida(corrida) {
+      corridaNotificacao = corrida;
+      tempoRestante = 30;
+      
+      // Atualizar conteúdo do modal
+      document.getElementById('modal-origem').textContent = corrida.origem;
+      document.getElementById('modal-destino').textContent = corrida.destino;
+      
+      // Mostrar modal
+      document.getElementById('modal-notificacao').classList.remove('hidden');
+      
+      // Tocar som
+      if (window.tocarSomNotificacao) {
+        window.tocarSomNotificacao();
+      }
+      
+      // Vibrar dispositivo (se disponível)
+      if ('vibrate' in navigator) {
+        navigator.vibrate([200, 100, 200]);
+      }
+      
+      // Mostrar notificação do navegador
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Nova Corrida Disponível!', {
+          body: `De: ${corrida.origem}\nPara: ${corrida.destino}\nValor: R$ 5,00`,
+          icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwRDRBQSI+PHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMiA5TDEzLjA5IDkuNzRMMTIgMTZMMTAuOTEgOS43NEwyIDlMMTAuOTEgOC4yNkwxMiAyWiIvPjwvc3ZnPg==',
+          tag: 'nova-corrida'
+        });
+      }
+      
+      // Atualizar badge de notificação
+      notificacoesAtivas++;
+      atualizarBadgeNotificacao();
+      
+      // Iniciar timer
+      iniciarTimerNotificacao();
+    }
+
+    function iniciarTimerNotificacao() {
+      const tempoElement = document.getElementById('tempo-restante');
+      const barraElement = document.getElementById('barra-tempo');
+      
+      timerNotificacao = setInterval(() => {
+        tempoRestante--;
+        tempoElement.textContent = `${tempoRestante}s`;
+        
+        const porcentagem = (tempoRestante / 30) * 100;
+        barraElement.style.width = `${porcentagem}%`;
+        
+        // Mudar cor da barra conforme o tempo
+        if (tempoRestante <= 10) {
+          barraElement.className = 'bg-red-500 h-2 rounded-full transition-all duration-1000';
+        } else if (tempoRestante <= 20) {
+          barraElement.className = 'bg-orange-500 h-2 rounded-full transition-all duration-1000';
+        }
+        
+        if (tempoRestante <= 0) {
+          fecharModalNotificacao();
+        }
+      }, 1000);
+    }
+
+    function fecharModalNotificacao() {
+      document.getElementById('modal-notificacao').classList.add('hidden');
+      
+      if (timerNotificacao) {
+        clearInterval(timerNotificacao);
+        timerNotificacao = null;
+      }
+      
+      corridaNotificacao = null;
+      tempoRestante = 30;
+      
+      // Resetar barra de tempo
+      const barraElement = document.getElementById('barra-tempo');
+      barraElement.style.width = '100%';
+      barraElement.className = 'bg-yellow-500 h-2 rounded-full transition-all duration-1000';
+      
+      // Reduzir badge
+      if (notificacoesAtivas > 0) {
+        notificacoesAtivas--;
+        atualizarBadgeNotificacao();
+      }
+    }
+
+    function aceitarCorridaModal() {
+      if (corridaNotificacao) {
+        aceitarCorrida(corridaNotificacao.id);
+        fecharModalNotificacao();
+      }
+    }
+
+    function atualizarBadgeNotificacao() {
+      const badge = document.getElementById('notification-badge');
+      const count = document.getElementById('badge-count');
+      
+      if (notificacoesAtivas > 0) {
+        badge.classList.remove('hidden');
+        count.textContent = notificacoesAtivas;
+      } else {
+        badge.classList.add('hidden');
+      }
     }
 
     function verificarCorridasPendentes() {
@@ -908,6 +1115,7 @@
       }
     }, 5000);
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959bf03e638df1ea',t:'MTc1MTYwMzk2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959c029706d6f1de',t:'MTc1MTYwNDcxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+
 

@@ -1,7 +1,5 @@
 
 
-
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -412,13 +410,13 @@
 
   <!-- Interface Administrativa -->
   <div id="interface-admin" class="fixed inset-0 bg-gray-50 z-50 hidden overflow-y-auto">
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
       <!-- Header Admin -->
       <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-2xl font-bold text-gray-900">Área Administrativa</h1>
-            <p class="text-gray-600">Gerenciamento completo da plataforma</p>
+            <p class="text-gray-600">Gerenciamento de motoristas</p>
           </div>
           <button onclick="sairAreaAdmin()" 
                   class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all">
@@ -428,7 +426,7 @@
       </div>
 
       <!-- Estatísticas -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div class="bg-white rounded-xl shadow-lg p-6">
           <div class="flex items-center">
             <div class="bg-blue-100 p-3 rounded-full">
@@ -470,44 +468,17 @@
             </div>
           </div>
         </div>
-
-        <div class="bg-white rounded-xl shadow-lg p-6">
-          <div class="flex items-center">
-            <div class="bg-red-100 p-3 rounded-full">
-              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-              </svg>
-            </div>
-            <div class="ml-4">
-              <p class="text-2xl font-bold text-red-600" id="motoristas-atraso">0</p>
-              <p class="text-sm text-gray-600">Com Pagamento Atrasado</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Lista de Motoristas -->
       <div class="bg-white rounded-2xl shadow-lg p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-gray-900">Motoristas Cadastrados</h2>
-          <div class="flex gap-3">
-            <button onclick="notificarTodosAtrasados()" 
-                    class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium transition-all">
-              📢 Notificar Todos em Atraso
-            </button>
-            <button onclick="atualizarListaMotoristas()" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all">
-              🔄 Atualizar
-            </button>
-          </div>
-        </div>
-        
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Motoristas Cadastrados</h2>
         <div id="lista-motoristas-admin">
           <div class="text-center py-8 text-gray-500">
             <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
-            <p>Carregando motoristas...</p>
+            <p>Nenhum motorista cadastrado</p>
           </div>
         </div>
       </div>
@@ -544,53 +515,16 @@
     </div>
   </div>
 
-  <!-- Modal de Notificação Personalizada -->
-  <div id="modal-notificacao-personalizada" class="fixed inset-0 bg-black bg-opacity-50 z-60 hidden flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl p-6 m-4 max-w-md w-full">
-      <div class="text-center mb-6">
-        <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h8v-2H4v2zM4 11h8V9H4v2z"/>
-          </svg>
-        </div>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Enviar Notificação</h3>
-        <p class="text-gray-600">Envie uma mensagem personalizada para o motorista</p>
-      </div>
-
-      <div class="mb-6">
-        <div id="info-motorista-notificacao" class="bg-gray-50 rounded-xl p-4 mb-4">
-          <!-- Informações do motorista serão inseridas aqui -->
-        </div>
-        
-        <label class="block text-sm font-medium text-gray-700 mb-2">Mensagem:</label>
-        <textarea id="mensagem-notificacao" rows="4" 
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="Digite sua mensagem aqui..."></textarea>
-      </div>
-
-      <div class="flex gap-3">
-        <button onclick="cancelarNotificacao()" 
-                class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-3 rounded-xl transition-all">
-          Cancelar
-        </button>
-        <button onclick="enviarNotificacaoPersonalizada()" 
-                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-all">
-          📤 Enviar
-        </button>
-      </div>
-    </div>
-  </div>
-
   <script>
     // Configuração do Firebase
     const firebaseConfig = {
-apiKey: "AIzaSyC7p8sFN6eOy1vwUOGCkQLpnIiGkRbCS3o",
-  authDomain: "m-taxi-37c8f.firebaseapp.com",
-  projectId: "m-taxi-37c8f",
-  storageBucket: "m-taxi-37c8f.firebasestorage.app",
-  messagingSenderId: "1028876997049",
-  appId: "1:1028876997049:web:7bfc5fb4a12e3b0613e668",
-  measurementId: "G-H60HNCY2MC"
+      apiKey : "AIzaSyAJk8-W80iJyGHoJBeNZDo5k9wmh8HRPrQ" , 
+  authDomain : "mototaxi-tapaua.firebaseapp.com" , 
+  projectId : "mototaxi-tapaua" , 
+  storageBucket : "mototaxi-tapaua.firebasestorage.app" , 
+  messagingSenderId : "629986832248" , 
+  appId : "1:629986832248:web:fd044f24cc51aa018ba28d" , 
+  measurementId : "G-1S6PYNHWN5"
     };
 
     // Inicializar Firebase
@@ -621,19 +555,12 @@ apiKey: "AIzaSyC7p8sFN6eOy1vwUOGCkQLpnIiGkRbCS3o",
     
     // Variáveis administrativas
     let motoristaParaRemover = null;
-    let motoristaParaNotificar = null;
     const SENHA_ADMIN = '@Zxcasdqwe123';
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', function() {
       mostrarInterface('passageiro');
       inicializarFirebase();
-
-function inicializarFirebase() {
-  console.log("Firebase inicializado");
-  atualizarStatusDispositivo("✅ Firebase conectado");
-}
-
       if (motoristaLogado) {
         mostrarDashboardMotorista();
         verificarNotificacoes();
@@ -642,7 +569,6 @@ function inicializarFirebase() {
       verificarCorridasPendentes();
       configurarAutoComplete();
       inicializarNotificacoes();
-      criarAudioChamada();
     });
 
     // Navegação entre interfaces
@@ -686,14 +612,7 @@ function inicializarFirebase() {
         nomeMotorista: null,
         passageiroId: dispositivoId
       };
-       // Função de abrir modal administrativo
-  function abrirAreaAdministrativa() {
-    document.getElementById('modal-login-admin').classList.remove('hidden');
-  }
 
-  function fecharModalLoginAdmin() {
-    document.getElementById('modal-login-admin').classList.add('hidden');
-  }
       corridaAtual = corrida;
       
       // Salvar corrida no Firebase
@@ -702,9 +621,6 @@ function inicializarFirebase() {
           mostrarStatusCorrida('aguardando');
           mostrarToast('Corrida solicitada! Procurando motorista...', 'info');
           atualizarStatusDispositivo('📤 Corrida enviada');
-          
-          // Tocar alarme para motoristas online
-          tocarAlarmeMotoristasOnline();
         })
         .catch((error) => {
           console.error('Erro ao solicitar corrida:', error);
@@ -755,18 +671,14 @@ function inicializarFirebase() {
 
     function cancelarCorrida() {
       if (corridaAtual) {
-        // Remover corrida do Firebase
-        database.ref('corridas/' + corridaAtual.id).remove()
-          .then(() => {
-            voltarParaSolicitacao();
-            mostrarToast('Corrida cancelada', 'info');
-            atualizarStatusDispositivo('❌ Corrida cancelada');
-          })
-          .catch((error) => {
-            console.error('Erro ao cancelar corrida:', error);
-            mostrarToast('Erro ao cancelar corrida', 'error');
-          });
+        const index = corridas.findIndex(c => c.id === corridaAtual.id);
+        if (index > -1) {
+          corridas.splice(index, 1);
+          salvarDados();
+        }
       }
+      voltarParaSolicitacao();
+      mostrarToast('Corrida cancelada', 'info');
     }
 
     function voltarParaSolicitacao() {
@@ -880,9 +792,6 @@ function inicializarFirebase() {
 
     function aceitarCorrida(corridaId) {
       if (!motoristaLogado) return;
-      
-      // Parar alarme
-      pararAlarme();
       
       // Atualizar corrida no Firebase
       database.ref('corridas/' + corridaId).update({
@@ -1259,53 +1168,731 @@ function inicializarFirebase() {
       });
     }
 
-    // Funções de Notificação e Alarme
+    // Funções de Notificação
     function inicializarNotificacoes() {
       // Solicitar permissão para notificações
       if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
       }
+      
+      // Criar áudio para notificação (usando Web Audio API)
+      criarAudioNotificacao();
     }
 
-    // Criar áudio de chamada para motoristas
-    let audioAlarme = null;
-    let intervalAlarme = null;
-
-    function criarAudioChamada() {
+    function criarAudioNotificacao() {
       try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         
-        // Função para criar som de chamada telefônica
-        window.criarSomChamada = function() {
+        // Função para tocar som de notificação
+        window.tocarSomNotificacao = function() {
           const oscillator = audioContext.createOscillator();
           const gainNode = audioContext.createGain();
           
           oscillator.connect(gainNode);
           gainNode.connect(audioContext.destination);
           
-          // Frequências típicas de toque de telefone
-          oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Lá
-          oscillator.frequency.setValueAtTime(480, audioContext.currentTime + 0.4); // Si bemol
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+          oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
           
           gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
           
           oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.8);
+          oscillator.stop(audioContext.currentTime + 0.3);
         };
       } catch (e) {
         console.log('Áudio não disponível');
       }
     }
 
-    function tocarAlarmeMotoristasOnline() {
-      // Verificar se há motoristas online
-      const motoristasOnline = motoristas.filter(m => m.online);
+    function notificarMotoristasOnline(corrida) {
+      // Atualizar lista de corridas
+      setTimeout(() => {
+        atualizarCorridasDisponiveis();
+      }, 1000);
       
-      if (motoristasOnline.length === 0) {
-        mostrarToast('Nenhum motorista online no momento', 'info');
+      // Se há motorista logado e online, mostrar notificação
+      if (motoristaLogado && statusMotorista) {
+        mostrarNotificacaoCorrida(corrida);
+      }
+    }
+
+    function mostrarNotificacaoCorrida(corrida) {
+      corridaNotificacao = corrida;
+      tempoRestante = 30;
+      
+      // Atualizar conteúdo do modal
+      document.getElementById('modal-origem').textContent = corrida.origem;
+      document.getElementById('modal-destino').textContent = corrida.destino;
+      
+      // Mostrar modal
+      document.getElementById('modal-notificacao').classList.remove('hidden');
+      
+      // Tocar som
+      if (window.tocarSomNotificacao) {
+        window.tocarSomNotificacao();
+      }
+      
+      // Vibrar dispositivo (se disponível)
+      if ('vibrate' in navigator) {
+        navigator.vibrate([200, 100, 200]);
+      }
+      
+      // Mostrar notificação do navegador
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Nova Corrida Disponível!', {
+          body: `De: ${corrida.origem}\nPara: ${corrida.destino}\nValor: R$ 5,00`,
+          icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwRDRBQSI+PHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMiA5TDEzLjA5IDkuNzRMMTIgMTZMMTAuOTEgOS43NEwyIDlMMTAuOTEgOC4yNkwxMiAyWiIvPjwvc3ZnPg==',
+          tag: 'nova-corrida'
+        });
+      }
+      
+      // Atualizar badge de notificação
+      notificacoesAtivas++;
+      atualizarBadgeNotificacao();
+      
+      // Iniciar timer
+      iniciarTimerNotificacao();
+    }
+
+    function iniciarTimerNotificacao() {
+      const tempoElement = document.getElementById('tempo-restante');
+      const barraElement = document.getElementById('barra-tempo');
+      
+      timerNotificacao = setInterval(() => {
+        tempoRestante--;
+        tempoElement.textContent = `${tempoRestante}s`;
+        
+        const porcentagem = (tempoRestante / 30) * 100;
+        barraElement.style.width = `${porcentagem}%`;
+        
+        // Mudar cor da barra conforme o tempo
+        if (tempoRestante <= 10) {
+          barraElement.className = 'bg-red-500 h-2 rounded-full transition-all duration-1000';
+        } else if (tempoRestante <= 20) {
+          barraElement.className = 'bg-orange-500 h-2 rounded-full transition-all duration-1000';
+        }
+        
+        if (tempoRestante <= 0) {
+          fecharModalNotificacao();
+        }
+      }, 1000);
+    }
+
+    function fecharModalNotificacao() {
+      document.getElementById('modal-notificacao').classList.add('hidden');
+      
+      if (timerNotificacao) {
+        clearInterval(timerNotificacao);
+        timerNotificacao = null;
+      }
+      
+      corridaNotificacao = null;
+      tempoRestante = 30;
+      
+      // Resetar barra de tempo
+      const barraElement = document.getElementById('barra-tempo');
+      barraElement.style.width = '100%';
+      barraElement.className = 'bg-yellow-500 h-2 rounded-full transition-all duration-1000';
+      
+      // Reduzir badge
+      if (notificacoesAtivas > 0) {
+        notificacoesAtivas--;
+        atualizarBadgeNotificacao();
+      }
+    }
+
+    function aceitarCorridaModal() {
+      if (corridaNotificacao) {
+        aceitarCorrida(corridaNotificacao.id);
+        fecharModalNotificacao();
+      }
+    }
+
+    function atualizarBadgeNotificacao() {
+      const badge = document.getElementById('notification-badge');
+      const count = document.getElementById('badge-count');
+      
+      if (notificacoesAtivas > 0) {
+        badge.classList.remove('hidden');
+        count.textContent = notificacoesAtivas;
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function verificarCorridasPendentes() {
+      // Verificar se há corridas pendentes para o passageiro
+      const corridaPendente = corridas.find(c => c.status !== 'finalizada' && c.status !== 'cancelada');
+      if (corridaPendente) {
+        corridaAtual = corridaPendente;
+        if (corridaPendente.status === 'aguardando') {
+          mostrarStatusCorrida('aguardando');
+        } else if (corridaPendente.status === 'aceita') {
+          mostrarStatusCorrida('aceita');
+        }
+      }
+    }
+
+    function calcularTempoDecorrido(dataISO) {
+      const agora = new Date();
+      const data = new Date(dataISO);
+      const diffMs = agora - data;
+      const diffMins = Math.floor(diffMs / 60000);
+      
+      if (diffMins < 1) return 'agora';
+      if (diffMins === 1) return '1 minuto';
+      if (diffMins < 60) return `${diffMins} minutos`;
+      
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours === 1) return '1 hora';
+      return `${diffHours} horas`;
+    }
+
+    function mostrarToast(mensagem, tipo) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const cores = {
+        success: 'bg-green-100 border-green-400 text-green-700',
+        error: 'bg-red-100 border-red-400 text-red-700',
+        info: 'bg-blue-100 border-blue-400 text-blue-700'
+      };
+
+      toast.className = `${cores[tipo]} border-l-4 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-x-full`;
+      toast.innerHTML = `
+        <div class="flex justify-between items-start">
+          <p class="text-sm font-medium">${mensagem}</p>
+          <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg leading-none">&times;</button>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      
+      // Animação de entrada
+      setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+      }, 100);
+
+      // Remover automaticamente após 5 segundos
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.classList.add('translate-x-full');
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, 5000);
+    }
+
+    // Funções Firebase
+    function gerarIdDispositivo() {
+      const id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('dispositivoId', id);
+      return id;
+    }
+
+    function inicializarFirebase() {
+      atualizarStatusDispositivo('🔄 Conectando ao Firebase...');
+      
+      // Escutar mudanças nas corridas
+      const corridasRef = database.ref('corridas');
+      const corridasListener = corridasRef.on('value', (snapshot) => {
+        const corridasData = snapshot.val();
+        if (corridasData) {
+          const novasCorridas = Object.values(corridasData);
+          verificarNovasCorridas(corridas, novasCorridas);
+          corridas = novasCorridas;
+          atualizarCorridasDisponiveis();
+          verificarCorridasPendentes();
+        }
+        atualizarStatusDispositivo('🔥 Conectado ao Firebase');
+      });
+      
+      firebaseListeners.push({ ref: corridasRef, listener: corridasListener });
+      
+      // Escutar mudanças nos motoristas
+      const motoristasRef = database.ref('motoristas');
+      const motoristasListener = motoristasRef.on('value', (snapshot) => {
+        const motoristasData = snapshot.val();
+        if (motoristasData) {
+          motoristas = Object.values(motoristasData);
+          atualizarContadorDispositivos();
+        }
+      });
+      
+      firebaseListeners.push({ ref: motoristasRef, listener: motoristasListener });
+      
+      // Manter conexão ativa
+      database.ref('.info/connected').on('value', (snapshot) => {
+        if (snapshot.val() === true) {
+          atualizarStatusDispositivo('🟢 Online');
+        } else {
+          atualizarStatusDispositivo('🔴 Desconectado');
+        }
+      });
+    }
+
+    function verificarNovasCorridas(corridasAntigas, corridasNovas) {
+      // Se não há motorista logado ou está offline, não notificar
+      if (!motoristaLogado || !statusMotorista) return;
+      
+      const idsAntigos = corridasAntigas.map(c => c.id);
+      const novasCorridas = corridasNovas.filter(c => 
+        !idsAntigos.includes(c.id) && 
+        c.status === 'aguardando'
+      );
+      
+      // Notificar sobre cada nova corrida
+      novasCorridas.forEach(corrida => {
+        setTimeout(() => {
+          mostrarNotificacaoCorrida(corrida);
+        }, 500);
+      });
+    }
+
+    function atualizarStatusDispositivo(status) {
+      const statusElement = document.getElementById('status-dispositivo');
+      if (statusElement) {
+        statusElement.textContent = status;
+        
+        // Resetar para status padrão após 3 segundos
+        setTimeout(() => {
+          atualizarContadorDispositivos();
+        }, 3000);
+      }
+    }
+
+    function atualizarContadorDispositivos() {
+      const statusElement = document.getElementById('status-dispositivo');
+      if (statusElement) {
+        const motoristasOnline = motoristas.filter(m => m.online).length;
+        const corridasAguardando = corridas.filter(c => c.status === 'aguardando').length;
+        statusElement.textContent = `🚗 ${motoristasOnline} motoristas online • 📍 ${corridasAguardando} corridas`;
+      }
+    }
+
+    function cancelarCorrida() {
+      if (corridaAtual) {
+        // Remover corrida do Firebase
+        database.ref('corridas/' + corridaAtual.id).remove()
+          .then(() => {
+            voltarParaSolicitacao();
+            mostrarToast('Corrida cancelada', 'info');
+            atualizarStatusDispositivo('❌ Corrida cancelada');
+          })
+          .catch((error) => {
+            console.error('Erro ao cancelar corrida:', error);
+            mostrarToast('Erro ao cancelar corrida', 'error');
+          });
+      }
+    }
+
+    // Manter atividade do motorista
+    setInterval(() => {
+      if (statusMotorista && motoristaLogado) {
+        // Atualizar última atividade no Firebase
+        database.ref('motoristas/' + motoristaLogado.id).update({
+          ultimaAtividade: new Date().toISOString()
+        });
+      }
+    }, 30000); // A cada 30 segundos
+
+    // Funções Administrativas
+    function abrirAreaAdministrativa() {
+      document.getElementById('modal-login-admin').classList.remove('hidden');
+      document.getElementById('senha-admin').focus();
+    }
+
+    function fecharModalLoginAdmin() {
+      document.getElementById('modal-login-admin').classList.add('hidden');
+      document.getElementById('senha-admin').value = '';
+    }
+
+    function verificarSenhaAdmin() {
+      const senhaDigitada = document.getElementById('senha-admin').value;
+      
+      if (senhaDigitada === SENHA_ADMIN) {
+        fecharModalLoginAdmin();
+        mostrarInterfaceAdmin();
+        mostrarToast('Acesso administrativo autorizado', 'success');
+      } else {
+        mostrarToast('Senha incorreta', 'error');
+        document.getElementById('senha-admin').value = '';
+        document.getElementById('senha-admin').focus();
+      }
+    }
+
+    function mostrarInterfaceAdmin() {
+      document.getElementById('interface-admin').classList.remove('hidden');
+      atualizarEstatisticasAdmin();
+      carregarListaMotoristas();
+    }
+
+    function sairAreaAdmin() {
+      document.getElementById('interface-admin').classList.add('hidden');
+    }
+
+    function atualizarEstatisticasAdmin() {
+      const totalMotoristas = motoristas.length;
+      const motoristasOnline = motoristas.filter(m => m.online).length;
+      const corridasAtivas = corridas.filter(c => c.status === 'aguardando' || c.status === 'aceita').length;
+
+      document.getElementById('total-motoristas').textContent = totalMotoristas;
+      document.getElementById('motoristas-online').textContent = motoristasOnline;
+      document.getElementById('corridas-ativas').textContent = corridasAtivas;
+    }
+
+    function carregarListaMotoristas() {
+      const container = document.getElementById('lista-motoristas-admin');
+      
+      if (motoristas.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <p>Nenhum motorista cadastrado</p>
+          </div>
+        `;
         return;
       }
 
-      // Para cada motorista online, simular alarme
-      motoristasOnline.forEach(motorista => {
+      container.innerHTML = '';
+
+      motoristas.forEach(motorista => {
+        const div = document.createElement('div');
+        div.className = 'border border-gray-200 rounded-xl p-4 mb-4 hover:shadow-md transition-shadow';
+        
+        const statusClass = motorista.online ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+        const statusText = motorista.online ? 'Online' : 'Offline';
+        
+        const dataCadastro = new Date(motorista.cadastradoEm).toLocaleDateString('pt-BR');
+        const ultimaAtividade = motorista.ultimaAtividade ? 
+          new Date(motorista.ultimaAtividade).toLocaleDateString('pt-BR') : 'Nunca';
+
+        const diasAtraso = motorista.diasAtraso || 0;
+        const statusPagamento = diasAtraso === 0 ? 
+          '<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Em dia</span>' :
+          `<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">${diasAtraso} dias atraso</span>`;
+
+        div.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg">
+                ${motorista.nome.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900">${motorista.nome}</h3>
+                <p class="text-sm text-gray-600">📞 ${motorista.telefone}</p>
+                <p class="text-sm text-gray-600">🆔 CPF: ${motorista.cpf || 'Não informado'}</p>
+                <p class="text-sm text-gray-600">🎂 ${motorista.idade} anos</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="${statusClass} px-2 py-1 rounded-full text-xs font-medium">
+                    ${statusText}
+                  </span>
+                  ${statusPagamento}
+                  <span class="text-xs text-gray-500">
+                    Cadastrado em ${dataCadastro}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Última atividade: ${ultimaAtividade}
+                </p>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              ${diasAtraso > 0 ? `
+                <button onclick="enviarNotificacaoPagamento('${motorista.id}')" 
+                        class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium transition-all text-sm">
+                  📢 Notificar
+                </button>
+              ` : ''}
+              <button onclick="removerMotorista('${motorista.id}')" 
+                      class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all text-sm">
+                🗑️ Remover
+              </button>
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(div);
+      });
+    }
+
+    function removerMotorista(motoristaId) {
+      const motorista = motoristas.find(m => m.id === motoristaId);
+      if (!motorista) return;
+
+      motoristaParaRemover = motorista;
+      
+      // Mostrar informações do motorista no modal
+      document.getElementById('info-motorista-remocao').innerHTML = `
+        <p class="font-semibold text-gray-900 mb-1">Nome: ${motorista.nome}</p>
+        <p class="text-gray-600 mb-1">Telefone: ${motorista.telefone}</p>
+        <p class="text-gray-600 mb-1">Idade: ${motorista.idade} anos</p>
+        <p class="text-gray-600">Cadastrado em: ${new Date(motorista.cadastradoEm).toLocaleDateString('pt-BR')}</p>
+      `;
+      
+      document.getElementById('modal-confirmar-remocao').classList.remove('hidden');
+    }
+
+    function cancelarRemocao() {
+      document.getElementById('modal-confirmar-remocao').classList.add('hidden');
+      motoristaParaRemover = null;
+    }
+
+    function confirmarRemocaoMotorista() {
+      if (!motoristaParaRemover) return;
+
+      // Remover do Firebase
+      database.ref('motoristas/' + motoristaParaRemover.id).remove()
+        .then(() => {
+          // Remover da lista local
+          const index = motoristas.findIndex(m => m.id === motoristaParaRemover.id);
+          if (index > -1) {
+            motoristas.splice(index, 1);
+          }
+          
+          // Se o motorista removido é o logado, fazer logout
+          if (motoristaLogado && motoristaLogado.id === motoristaParaRemover.id) {
+            motoristaLogado = null;
+            localStorage.removeItem('motoristaLogado');
+            statusMotorista = false;
+          }
+          
+          cancelarRemocao();
+          carregarListaMotoristas();
+          atualizarEstatisticasAdmin();
+          mostrarToast('Motorista removido com sucesso', 'success');
+        })
+        .catch((error) => {
+          console.error('Erro ao remover motorista:', error);
+          mostrarToast('Erro ao remover motorista', 'error');
+        });
+    }
+
+    // Funções de Pagamento
+    function mostrarPix() {
+      document.getElementById('modal-pix').classList.remove('hidden');
+    }
+
+    function fecharModalPix() {
+      document.getElementById('modal-pix').classList.add('hidden');
+    }
+
+    function copiarPix() {
+      const codigoPix = document.getElementById('codigo-pix').textContent;
+      
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(codigoPix).then(() => {
+          mostrarToast('Código PIX copiado!', 'success');
+        }).catch(() => {
+          // Fallback para navegadores mais antigos
+          copiarTextoFallback(codigoPix);
+        });
+      } else {
+        copiarTextoFallback(codigoPix);
+      }
+    }
+
+    function copiarTextoFallback(texto) {
+      const textArea = document.createElement('textarea');
+      textArea.value = texto;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        mostrarToast('Código PIX copiado!', 'success');
+      } catch (err) {
+        mostrarToast('Erro ao copiar. Copie manualmente: ' + texto, 'error');
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function marcarComoPago() {
+      if (!motoristaLogado) return;
+
+      const hoje = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      
+      // Atualizar no Firebase
+      database.ref('motoristas/' + motoristaLogado.id).update({
+        ultimoPagamento: hoje,
+        diasAtraso: 0
+      }).then(() => {
+        motoristaLogado.ultimoPagamento = hoje;
+        motoristaLogado.diasAtraso = 0;
+        localStorage.setItem('motoristaLogado', JSON.stringify(motoristaLogado));
+        
+        fecharModalPix();
+        atualizarStatusPagamento();
+        mostrarToast('Pagamento registrado com sucesso!', 'success');
+      }).catch((error) => {
+        console.error('Erro ao registrar pagamento:', error);
+        mostrarToast('Erro ao registrar pagamento', 'error');
+      });
+    }
+
+    function atualizarStatusPagamento() {
+      if (!motoristaLogado) return;
+
+      const container = document.getElementById('status-pagamento');
+      const hoje = new Date();
+      const ultimoPagamento = motoristaLogado.ultimoPagamento ? 
+        new Date(motoristaLogado.ultimoPagamento) : null;
+
+      let diasAtraso = 0;
+      let statusClass = '';
+      let statusText = '';
+      let statusIcon = '';
+
+      if (!ultimoPagamento) {
+        diasAtraso = Math.floor((hoje - new Date(motoristaLogado.cadastradoEm)) / (1000 * 60 * 60 * 24));
+        statusClass = 'bg-red-50 border-red-200 text-red-800';
+        statusText = 'Pagamento pendente';
+        statusIcon = '❌';
+      } else {
+        diasAtraso = Math.floor((hoje - ultimoPagamento) / (1000 * 60 * 60 * 24));
+        
+        if (diasAtraso === 0) {
+          statusClass = 'bg-green-50 border-green-200 text-green-800';
+          statusText = 'Pagamento em dia';
+          statusIcon = '✅';
+        } else if (diasAtraso === 1) {
+          statusClass = 'bg-yellow-50 border-yellow-200 text-yellow-800';
+          statusText = 'Pagamento vence hoje';
+          statusIcon = '⚠️';
+        } else {
+          statusClass = 'bg-red-50 border-red-200 text-red-800';
+          statusText = `${diasAtraso} dias em atraso`;
+          statusIcon = '❌';
+        }
+      }
+
+      // Atualizar dias de atraso no Firebase
+      if (motoristaLogado.diasAtraso !== diasAtraso) {
+        database.ref('motoristas/' + motoristaLogado.id).update({
+          diasAtraso: diasAtraso
+        });
+        motoristaLogado.diasAtraso = diasAtraso;
+        localStorage.setItem('motoristaLogado', JSON.stringify(motoristaLogado));
+      }
+
+      container.innerHTML = `
+        <div class="border rounded-lg p-3 ${statusClass}">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">${statusIcon}</span>
+              <span class="font-medium">${statusText}</span>
+            </div>
+            ${diasAtraso > 0 ? `<span class="text-sm font-bold">${diasAtraso} dias</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Funções de Validação
+    function formatarCPF(input) {
+      let valor = input.value.replace(/\D/g, '');
+      
+      if (valor.length <= 11) {
+        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+        valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      }
+      
+      input.value = valor;
+    }
+
+    function validarCPF(cpf) {
+      cpf = cpf.replace(/\D/g, '');
+      
+      if (cpf.length !== 11) return false;
+      
+      // Verificar se todos os dígitos são iguais
+      if (/^(\d)\1{10}$/.test(cpf)) return false;
+      
+      // Validar primeiro dígito verificador
+      let soma = 0;
+      for (let i = 0; i < 9; i++) {
+        soma += parseInt(cpf.charAt(i)) * (10 - i);
+      }
+      let resto = 11 - (soma % 11);
+      let digito1 = resto < 2 ? 0 : resto;
+      
+      if (parseInt(cpf.charAt(9)) !== digito1) return false;
+      
+      // Validar segundo dígito verificador
+      soma = 0;
+      for (let i = 0; i < 10; i++) {
+        soma += parseInt(cpf.charAt(i)) * (11 - i);
+      }
+      resto = 11 - (soma % 11);
+      let digito2 = resto < 2 ? 0 : resto;
+      
+      return parseInt(cpf.charAt(10)) === digito2;
+    }
+
+    // Função para enviar notificação de pagamento
+    function enviarNotificacaoPagamento(motoristaId) {
+      const motorista = motoristas.find(m => m.id === motoristaId);
+      if (!motorista) return;
+
+      // Criar notificação no Firebase
+      const notificacao = {
+        id: Date.now(),
+        motoristaId: motoristaId,
+        tipo: 'pagamento',
+        titulo: '💳 Pagamento Pendente',
+        mensagem: `Olá ${motorista.nome}, você tem ${motorista.diasAtraso} dias de atraso no pagamento. Regularize sua situação para continuar usando o aplicativo.`,
+        criadaEm: new Date().toISOString(),
+        lida: false
+      };
+
+      database.ref('notificacoes/' + notificacao.id).set(notificacao)
+        .then(() => {
+          mostrarToast(`Notificação enviada para ${motorista.nome}`, 'success');
+        })
+        .catch((error) => {
+          console.error('Erro ao enviar notificação:', error);
+          mostrarToast('Erro ao enviar notificação', 'error');
+        });
+    }
+
+    // Verificar notificações para o motorista logado
+    function verificarNotificacoes() {
+      if (!motoristaLogado) return;
+
+      database.ref('notificacoes').orderByChild('motoristaId').equalTo(motoristaLogado.id)
+        .on('value', (snapshot) => {
+          const notificacoes = snapshot.val();
+          if (notificacoes) {
+            const notificacoesNaoLidas = Object.values(notificacoes).filter(n => !n.lida);
+            
+            notificacoesNaoLidas.forEach(notificacao => {
+              mostrarToast(notificacao.mensagem, 'info');
+              
+              // Marcar como lida
+              database.ref('notificacoes/' + notificacao.id).update({ lida: true });
+            });
+          }
+        });
+    }
+
+    // Cleanup ao sair da página
+    window.addEventListener('beforeunload', () => {
+      if (motoristaLogado && statusMotorista) {
+        // Marcar motorista como offline
+        database.ref('motoristas/' + motoristaLogado.id).update({
+          online: false,
+          ultimaAtividade: new Date().toISOString()
+        });
+      }
+      
+      // Remover listeners
+      firebaseListeners.forEach(({ ref, listener }) => {
+        ref.off('value', listener);
+      });
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959d31ac4026f1d3',t:'MTc1MTYxNzEyOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

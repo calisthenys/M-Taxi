@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -553,15 +552,14 @@
   <script>
     // Configuração do Firebase
     const firebaseConfig = {
-  apiKey: "AIzaSyAjK8-W80iJyGHoJBeNZDo5k9wmh8HRPrQ",
-  authDomain: "mototaxi-tapaua.firebaseapp.com",
-  databaseURL: "https://mototaxi-tapaua-default-rtdb.firebaseio.com",
-  projectId: "mototaxi-tapaua",
-  storageBucket: "mototaxi-tapaua.appspot.com",
-  messagingSenderId: "62998632248",
-  appId: "1:62998632248:web:fd044f24cc51aa018ba28d",
-  measurementId: "G-1S6PYNHWN5"
-};
+      apiKey: "AIzaSyDemoKey123456789",
+      authDomain: "mototaxi-tapaua.firebaseapp.com",
+      databaseURL: "https://mototaxi-tapaua-default-rtdb.firebaseio.com",
+      projectId: "mototaxi-tapaua",
+      storageBucket: "mototaxi-tapaua.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef123456789"
+    };
 
     // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
@@ -822,7 +820,7 @@
       
       if (!origem || !destino) {
         alert('Por favor, preencha origem e destino');
-        // return;
+        return;
       }
 
       // Verificar se há motoristas online
@@ -1010,8 +1008,8 @@
         return;
       }
 
-      // if (!validarCPF(cpf)) {  // VALIDACAO DESATIVADA TEMPORARIAMENTE PARA TESTE
-        // cpfErro.classList.remove('hidden');
+      if (!validarCPF(cpf)) {
+        cpfErro.classList.remove('hidden');
         return;
       }
 
@@ -1454,5 +1452,5 @@
     // Atualizar notificações a cada segundo
     setInterval(atualizarNotificacoes, 1000);
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959cd97962a4bcd7',t:'MTc1MTYxMzUxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959d04938464c618',t:'MTc1MTYxNTI4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

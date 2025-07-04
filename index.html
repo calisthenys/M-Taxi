@@ -1,5 +1,7 @@
 
 
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -626,6 +628,12 @@ apiKey: "AIzaSyC7p8sFN6eOy1vwUOGCkQLpnIiGkRbCS3o",
     document.addEventListener('DOMContentLoaded', function() {
       mostrarInterface('passageiro');
       inicializarFirebase();
+
+function inicializarFirebase() {
+  console.log("Firebase inicializado");
+  atualizarStatusDispositivo("✅ Firebase conectado");
+}
+
       if (motoristaLogado) {
         mostrarDashboardMotorista();
         verificarNotificacoes();

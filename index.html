@@ -180,8 +180,8 @@
                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Placa da Moto</label>
-          <input type="text" id="placa-moto" placeholder="ABC-1234" 
+          <label class="block text-sm font-medium text-gray-700 mb-2">Idade</label>
+          <input type="number" id="idade-motorista" placeholder="Digite sua idade" min="18" max="80"
                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent">
         </div>
       </div>
@@ -380,10 +380,15 @@
     function cadastrarMotorista() {
       const nome = document.getElementById('nome-motorista-input').value.trim();
       const telefone = document.getElementById('telefone-motorista').value.trim();
-      const placa = document.getElementById('placa-moto').value.trim();
+      const idade = document.getElementById('idade-motorista').value.trim();
 
-      if (!nome || !telefone || !placa) {
+      if (!nome || !telefone || !idade) {
         mostrarToast('Por favor, preencha todos os campos', 'error');
+        return;
+      }
+
+      if (parseInt(idade) < 18 || parseInt(idade) > 80) {
+        mostrarToast('A idade deve estar entre 18 e 80 anos', 'error');
         return;
       }
 
@@ -391,7 +396,7 @@
         id: Date.now(),
         nome,
         telefone,
-        placa,
+        idade: parseInt(idade),
         cadastradoEm: new Date().toISOString(),
         online: false
       };
@@ -629,14 +634,21 @@
     }
 
     function obterEnderecoReverso(lat, lng, campo) {
-      // Simulação de geocodificação reversa com locais conhecidos de Tapauá
+      // Simulação de geocodificação reversa com locais conhecidos de Tapauá-AM
       const locaisConhecidos = [
         { nome: "Centro de Tapauá", lat: -5.1, lng: -63.2, raio: 0.01 },
         { nome: "Porto de Tapauá", lat: -5.11, lng: -63.19, raio: 0.01 },
         { nome: "Mercado Municipal", lat: -5.09, lng: -63.21, raio: 0.01 },
         { nome: "Igreja Matriz", lat: -5.1, lng: -63.2, raio: 0.005 },
-        { nome: "Escola Municipal", lat: -5.12, lng: -63.18, raio: 0.01 },
-        { nome: "Posto de Saúde", lat: -5.08, lng: -63.22, raio: 0.01 },
+        { nome: "Prefeitura Municipal", lat: -5.098, lng: -63.201, raio: 0.008 },
+        { nome: "Hospital Municipal", lat: -5.102, lng: -63.198, raio: 0.01 },
+        { nome: "Escola Estadual Amazonas", lat: -5.12, lng: -63.18, raio: 0.01 },
+        { nome: "Terminal Rodoviário", lat: -5.095, lng: -63.205, raio: 0.01 },
+        { nome: "Banco do Brasil", lat: -5.099, lng: -63.199, raio: 0.005 },
+        { nome: "Feira Livre", lat: -5.101, lng: -63.202, raio: 0.008 },
+        { nome: "Vila Nova", lat: -5.105, lng: -63.195, raio: 0.015 },
+        { nome: "Beira Rio", lat: -5.108, lng: -63.188, raio: 0.012 },
+        { nome: "Setor Comercial", lat: -5.097, lng: -63.203, raio: 0.01 },
         { nome: "Praça Central", lat: -5.1, lng: -63.2, raio: 0.005 }
       ];
 
@@ -654,8 +666,8 @@
       }
 
       if (!enderecoEncontrado) {
-        // Se não encontrou um local conhecido, usar coordenadas aproximadas
-        enderecoEncontrado = `Tapauá - Próximo a ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        // Se não encontrou um local conhecido, usar o centro como referência
+        enderecoEncontrado = "Centro de Tapauá";
       }
 
       document.getElementById(campo).value = enderecoEncontrado;
@@ -664,31 +676,102 @@
     // Configurar autocomplete para endereços
     function configurarAutoComplete() {
       const enderecosTapaua = [
+        // Bairros e Regiões
         "Centro de Tapauá",
-        "Porto de Tapauá", 
-        "Mercado Municipal",
-        "Igreja Matriz",
-        "Escola Municipal José da Silva",
-        "Posto de Saúde",
-        "Praça Central",
-        "Rua Principal",
-        "Beira Rio",
         "Vila Nova",
+        "Beira Rio", 
         "Setor Comercial",
-        "Terminal Rodoviário",
-        "Cemitério Municipal",
-        "Campo de Futebol",
-        "Escola Estadual",
-        "Delegacia",
-        "Correios",
-        "Banco do Brasil",
+        "Vila São José",
+        "Conjunto Habitacional",
+        "Área Portuária",
+        "Zona Rural",
+        
+        // Estabelecimentos Comerciais
+        "Mercado Municipal",
+        "Supermercado Central",
+        "Supermercado São José",
+        "Mercadinho da Vila",
         "Farmácia Central",
-        "Supermercado",
+        "Farmácia São Paulo",
+        "Drogaria Popular",
         "Padaria São José",
+        "Padaria Central",
+        "Açougue do Centro",
+        "Loja de Roupas Elegante",
+        "Casa de Materiais de Construção",
+        "Loja de Eletrodomésticos",
+        "Papelaria Escolar",
+        
+        // Serviços Públicos
+        "Prefeitura Municipal",
+        "Câmara Municipal",
+        "Fórum de Tapauá",
+        "Delegacia de Polícia",
+        "Corpo de Bombeiros",
+        "Correios",
+        "Cartório",
+        "Receita Federal",
+        "INSS",
+        
+        // Bancos e Financeiras
+        "Banco do Brasil",
+        "Caixa Econômica Federal",
+        "Bradesco",
+        "Banco da Amazônia",
+        "Lotérica",
+        "Casa Lotérica Central",
+        
+        // Saúde
+        "Hospital Municipal",
+        "Posto de Saúde Central",
+        "UBS Vila Nova",
+        "Clínica Médica",
+        "Laboratório de Análises",
+        "Consultório Odontológico",
+        
+        // Educação
+        "Escola Municipal José da Silva",
+        "Escola Estadual Amazonas",
+        "Colégio São José",
+        "Creche Municipal",
+        "Centro de Educação Infantil",
+        
+        // Transporte e Combustível
+        "Terminal Rodoviário",
+        "Porto de Tapauá",
+        "Posto de Combustível BR",
+        "Posto Shell",
+        "Oficina Mecânica Central",
+        "Borracharia",
+        
+        // Lazer e Cultura
+        "Praça Central",
+        "Praça da Igreja",
+        "Campo de Futebol Municipal",
+        "Quadra Poliesportiva",
+        "Centro Cultural",
+        "Biblioteca Municipal",
+        
+        // Religioso
+        "Igreja Matriz",
+        "Igreja Assembleia de Deus",
+        "Igreja Batista",
+        "Igreja Universal",
+        "Capela São José",
+        
+        // Outros Pontos
+        "Cemitério Municipal",
+        "Feira Livre",
+        "Mercado de Peixe",
+        "Rodoviária",
+        "Aeroporto Regional",
+        "Marina",
+        "Clube Social",
         "Hotel Tapauá",
+        "Pousada Central",
         "Restaurante do Porto",
-        "Oficina Mecânica",
-        "Posto de Combustível"
+        "Lanchonete da Praça",
+        "Pizzaria Bella Vista"
       ];
 
       configurarCampoAutoComplete('origem', enderecosTapaua);
@@ -825,5 +908,6 @@
       }
     }, 5000);
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959bd4004460f199',t:'MTc1MTYwMjgwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959bf03e638df1ea',t:'MTc1MTYwMzk2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+

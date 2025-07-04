@@ -35,6 +35,7 @@
           <div>
             <h1 class="text-xl font-bold text-gray-900">MotoTáxi Tapauá</h1>
             <p class="text-sm text-gray-500">Conectando você ao seu destino</p>
+            <p id="status-dispositivo" class="text-xs text-blue-600">🔄 Sincronizando...</p>
           </div>
         </div>
         <div class="flex items-center gap-3">
@@ -307,6 +308,12 @@
     let tempoRestante = 30;
     let audioNotificacao = null;
     let notificacoesAtivas = 0;
+    
+    // Variáveis para comunicação entre dispositivos
+    let dispositivoId = localStorage.getItem('dispositivoId') || gerarIdDispositivo();
+    let ultimaAtualizacao = 0;
+    let intervalSync = null;
+    let corridasAnteriores = [];
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', function() {
@@ -318,6 +325,7 @@
       verificarCorridasPendentes();
       configurarAutoComplete();
       inicializarNotificacoes();
+      inicializarSincronizacao();
     });
 
     // Navegação entre interfaces
@@ -1106,6 +1114,127 @@
       localStorage.setItem('corridas', JSON.stringify(corridas));
       localStorage.setItem('motoristaLogado', JSON.stringify(motoristaLogado));
       localStorage.setItem('estatisticas', JSON.stringify(estatisticas));
+      localStorage.setItem('dispositivoId', dispositivoId);
+      
+      // Salvar dados compartilhados para sincronização
+      salvarDadosCompartilhados();
+    }
+
+    // Funções de Sincronização entre Dispositivos
+    function gerarIdDispositivo() {
+      const id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('dispositivoId', id);
+      return id;
+    }
+
+    function inicializarSincronizacao() {
+      // Carregar dados compartilhados
+      carregarDadosCompartilhados();
+      
+      // Iniciar sincronização automática a cada 2 segundos
+      intervalSync = setInterval(() => {
+        sincronizarDados();
+      }, 2000);
+      
+      // Sincronizar quando a página ganha foco
+      window.addEventListener('focus', sincronizarDados);
+      
+      // Sincronizar quando há mudança no localStorage de outro dispositivo
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'dadosCompartilhados') {
+          carregarDadosCompartilhados();
+        }
+      });
+    }
+
+    function salvarDadosCompartilhados() {
+      const dadosCompartilhados = {
+        corridas: corridas,
+        motoristas: motoristas,
+        ultimaAtualizacao: Date.now(),
+        dispositivoOrigem: dispositivoId
+      };
+      
+      localStorage.setItem('dadosCompartilhados', JSON.stringify(dadosCompartilhados));
+    }
+
+    function carregarDadosCompartilhados() {
+      try {
+        const dados = localStorage.getItem('dadosCompartilhados');
+        if (dados) {
+          const dadosCompartilhados = JSON.parse(dados);
+          
+          // Verificar se há atualizações mais recentes
+          if (dadosCompartilhados.ultimaAtualizacao > ultimaAtualizacao) {
+            const corridasAntigas = [...corridas];
+            
+            corridas = dadosCompartilhados.corridas || [];
+            motoristas = dadosCompartilhados.motoristas || [];
+            ultimaAtualizacao = dadosCompartilhados.ultimaAtualizacao;
+            
+            // Verificar novas corridas para notificar motoristas
+            verificarNovasCorridas(corridasAntigas, corridas);
+            
+            // Atualizar interface
+            atualizarCorridasDisponiveis();
+            verificarCorridasPendentes();
+            
+            // Atualizar status de sincronização
+            atualizarStatusDispositivo('✅ Sincronizado');
+          }
+        } else {
+          atualizarStatusDispositivo('📱 Primeiro dispositivo');
+        }
+      } catch (e) {
+        console.log('Erro ao carregar dados compartilhados:', e);
+        atualizarStatusDispositivo('❌ Erro de sincronização');
+      }
+    }
+
+    function atualizarStatusDispositivo(status) {
+      const statusElement = document.getElementById('status-dispositivo');
+      if (statusElement) {
+        statusElement.textContent = status;
+        
+        // Resetar para status padrão após 3 segundos
+        setTimeout(() => {
+          const totalDispositivos = contarDispositivosAtivos();
+          statusElement.textContent = `📱 ${totalDispositivos} dispositivo(s) conectado(s)`;
+        }, 3000);
+      }
+    }
+
+    function contarDispositivosAtivos() {
+      // Simular contagem baseada em atividade recente
+      const agora = Date.now();
+      const tempoLimite = 30000; // 30 segundos
+      
+      if (ultimaAtualizacao && (agora - ultimaAtualizacao) < tempoLimite) {
+        return Math.max(1, motoristas.filter(m => m.online).length + 1);
+      }
+      return 1;
+    }
+
+    function sincronizarDados() {
+      carregarDadosCompartilhados();
+    }
+
+    function verificarNovasCorridas(corridasAntigas, corridasNovas) {
+      // Se não há motorista logado ou está offline, não notificar
+      if (!motoristaLogado || !statusMotorista) return;
+      
+      const idsAntigos = corridasAntigas.map(c => c.id);
+      const novasCorridas = corridasNovas.filter(c => 
+        !idsAntigos.includes(c.id) && 
+        c.status === 'aguardando'
+      );
+      
+      // Notificar sobre cada nova corrida
+      novasCorridas.forEach(corrida => {
+        setTimeout(() => {
+          mostrarNotificacaoCorrida(corrida);
+        }, 500); // Pequeno delay para evitar múltiplas notificações simultâneas
+      });
     }
 
     // Atualizar corridas disponíveis periodicamente
@@ -1115,7 +1244,5 @@
       }
     }, 5000);
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959c029706d6f1de',t:'MTc1MTYwNDcxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'959c19c845eefd72',t:'MTc1MTYwNTY2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
-

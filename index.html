@@ -686,7 +686,14 @@ function inicializarFirebase() {
         nomeMotorista: null,
         passageiroId: dispositivoId
       };
+       // Função de abrir modal administrativo
+  function abrirAreaAdministrativa() {
+    document.getElementById('modal-login-admin').classList.remove('hidden');
+  }
 
+  function fecharModalLoginAdmin() {
+    document.getElementById('modal-login-admin').classList.add('hidden');
+  }
       corridaAtual = corrida;
       
       // Salvar corrida no Firebase

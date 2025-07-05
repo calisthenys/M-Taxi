@@ -463,6 +463,65 @@
         </div>
     </div>
 
+    <!-- PIX Payment Modal -->
+    <div id="pix-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">💳</span>
+                </div>
+                <h3 class="text-xl font-bold mb-2" id="pix-title">Pagamento PIX</h3>
+                <div class="text-3xl font-bold text-green-600 mb-2" id="pix-amount">R$ 0,00</div>
+                <p class="text-gray-600 text-sm" id="pix-description">Escaneie o QR Code ou copie a chave PIX</p>
+            </div>
+            
+            <!-- QR Code Placeholder -->
+            <div class="bg-gray-100 rounded-xl p-6 mb-6 text-center">
+                <div class="w-32 h-32 bg-white rounded-lg mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-gray-300">
+                    <span class="text-4xl">📱</span>
+                </div>
+                <p class="text-sm text-gray-600">QR Code PIX</p>
+            </div>
+            
+            <!-- PIX Key -->
+            <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                <div class="text-sm text-gray-600 mb-2">Chave PIX:</div>
+                <div class="flex items-center justify-between bg-white rounded-lg p-3 border">
+                    <span class="text-sm font-mono text-gray-800" id="pix-key">41dd3c2e-2118-49c5-b455-1a60d43efc35</span>
+                    <button onclick="copyPixKey()" class="text-blue-500 hover:text-blue-600 p-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="bg-blue-50 rounded-xl p-4 mb-6">
+                <div class="text-sm text-blue-800">
+                    <div class="font-medium mb-2">📋 Como pagar:</div>
+                    <ol class="list-decimal list-inside space-y-1 text-xs">
+                        <li>Abra seu app do banco</li>
+                        <li>Escolha PIX → Pagar</li>
+                        <li>Escaneie o QR Code ou cole a chave</li>
+                        <li>Confirme o valor e pague</li>
+                        <li>Clique em "Já Paguei" abaixo</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button onclick="confirmPixPayment()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                    ✅ Já Paguei
+                </button>
+                <button onclick="closePixModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-xl transition duration-200">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Admin Dashboard -->
     <div id="admin-dashboard" class="hidden min-h-screen bg-gray-50">
         <!-- Header -->
@@ -893,21 +952,7 @@
         }
 
         function makePayment() {
-            showToast('Processando pagamento PIX...', 'info');
-            
-            setTimeout(() => {
-                appData.currentUser.paymentStatus = 'paid';
-                appData.currentUser.lastDailyPayment = new Date().toISOString();
-                const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
-                if (driverIndex !== -1) {
-                    appData.drivers[driverIndex] = appData.currentUser;
-                }
-                localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
-                saveData();
-                
-                showToast('Pagamento realizado com sucesso!', 'success');
-                updateDriverDashboard();
-            }, 2000);
+            showPixPayment('daily', 3.00, 'Taxa Diária');
         }
 
         function payAppFees() {
@@ -917,32 +962,7 @@
                 return;
             }
             
-            showToast(`Processando pagamento PIX de R$ ${driver.totalOwed.toFixed(2)}...`, 'info');
-            
-            setTimeout(() => {
-                // Mark all ride payments as paid
-                if (driver.ridePayments) {
-                    driver.ridePayments.forEach(payment => {
-                        payment.paid = true;
-                        payment.paidAt = new Date().toISOString();
-                    });
-                }
-                
-                driver.unpaidRides = 0;
-                driver.totalOwed = 0;
-                driver.lastAppPayment = new Date().toISOString();
-                
-                const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
-                if (driverIndex !== -1) {
-                    appData.drivers[driverIndex] = driver;
-                }
-                
-                localStorage.setItem('current_driver', JSON.stringify(driver));
-                saveData();
-                
-                showToast('Pagamento do aplicativo realizado com sucesso!', 'success');
-                updateDriverDashboard();
-            }, 2000);
+            showPixPayment('app', driver.totalOwed, 'Pagamento do Aplicativo');
         }
 
         function toggleDriverStatus() {
@@ -1420,6 +1440,111 @@
                 .replace(/(-\d{2})\d+?$/, '$1');
         }
 
+        // PIX Payment Functions
+        let currentPixPayment = null;
+
+        function showPixPayment(type, amount, description) {
+            currentPixPayment = { type, amount, description };
+            
+            document.getElementById('pix-title').textContent = description;
+            document.getElementById('pix-amount').textContent = `R$ ${amount.toFixed(2)}`;
+            document.getElementById('pix-description').textContent = 'Escaneie o QR Code ou copie a chave PIX';
+            
+            document.getElementById('pix-modal').classList.remove('hidden');
+        }
+
+        function closePixModal() {
+            document.getElementById('pix-modal').classList.add('hidden');
+            currentPixPayment = null;
+        }
+
+        function copyPixKey() {
+            const pixKey = document.getElementById('pix-key').textContent;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(pixKey).then(() => {
+                    showToast('Chave PIX copiada!', 'success');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(pixKey);
+                });
+            } else {
+                fallbackCopyTextToClipboard(pixKey);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('Chave PIX copiada!', 'success');
+            } catch (err) {
+                showToast('Erro ao copiar chave PIX', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function confirmPixPayment() {
+            if (!currentPixPayment) return;
+            
+            showToast('Processando confirmação do pagamento...', 'info');
+            
+            setTimeout(() => {
+                if (currentPixPayment.type === 'daily') {
+                    // Process daily payment
+                    appData.currentUser.paymentStatus = 'paid';
+                    appData.currentUser.lastDailyPayment = new Date().toISOString();
+                    
+                    const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
+                    if (driverIndex !== -1) {
+                        appData.drivers[driverIndex] = appData.currentUser;
+                    }
+                    
+                    localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
+                    saveData();
+                    
+                    showToast('Taxa diária paga com sucesso!', 'success');
+                    
+                } else if (currentPixPayment.type === 'app') {
+                    // Process app payment
+                    const driver = appData.currentUser;
+                    
+                    if (driver.ridePayments) {
+                        driver.ridePayments.forEach(payment => {
+                            payment.paid = true;
+                            payment.paidAt = new Date().toISOString();
+                        });
+                    }
+                    
+                    driver.unpaidRides = 0;
+                    driver.totalOwed = 0;
+                    driver.lastAppPayment = new Date().toISOString();
+                    
+                    const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
+                    if (driverIndex !== -1) {
+                        appData.drivers[driverIndex] = driver;
+                    }
+                    
+                    localStorage.setItem('current_driver', JSON.stringify(driver));
+                    saveData();
+                    
+                    showToast('Pagamento do aplicativo realizado com sucesso!', 'success');
+                }
+                
+                closePixModal();
+                updateDriverDashboard();
+            }, 2000);
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             showHomePage();
@@ -1436,5 +1561,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95aaabfad4f728b5',t:'MTc1MTc1ODQ1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95aac74de4697a2f',t:'MTc1MTc1OTU3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

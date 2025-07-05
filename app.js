@@ -99,3 +99,7 @@ function cadastrarMotorista() {
 document.addEventListener('DOMContentLoaded', () => {
   mostrarInterface('passageiro');
 });
+// Função para abrir Área Administrativa
+function abrirAreaAdministrativa() {
+  alert('Área Administrativa ainda não foi implementada.');
+}

@@ -45,6 +45,25 @@
         .shadow-taxi {
             box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
         }
+        .recording {
+            color: #ef4444 !important;
+            animation: pulse 1s infinite;
+        }
+        .voice-wave {
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: #ef4444;
+            margin: 0 1px;
+            animation: wave 1s infinite ease-in-out;
+        }
+        .voice-wave:nth-child(2) { animation-delay: 0.1s; }
+        .voice-wave:nth-child(3) { animation-delay: 0.2s; }
+        .voice-wave:nth-child(4) { animation-delay: 0.3s; }
+        @keyframes wave {
+            0%, 40%, 100% { transform: scaleY(0.4); }
+            20% { transform: scaleY(1); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -140,12 +159,14 @@
                         <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
                         <label class="text-sm font-medium text-gray-700">De onde?</label>
                     </div>
-                    <input type="text" id="origin-input" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Escolha um local de partida">
-                    <button onclick="useGPS('origin')" class="absolute right-3 top-12 text-taxi-yellow hover:text-yellow-600">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                        </svg>
-                    </button>
+                    <div class="relative">
+                        <input type="text" id="origin-input" class="w-full p-4 pr-12 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Digite ou grave sua localização">
+                        <button id="origin-voice-btn" onclick="toggleVoiceRecording('origin')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-taxi-yellow transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                            </svg>
+                        </button>
+                    </div>
                     <div id="origin-suggestions" class="absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 hidden shadow-lg"></div>
                 </div>
 
@@ -155,12 +176,14 @@
                         <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
                         <label class="text-sm font-medium text-gray-700">Para onde?</label>
                     </div>
-                    <input type="text" id="destination-input" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Escolha um destino">
-                    <button onclick="useGPS('destination')" class="absolute right-3 top-12 text-taxi-yellow hover:text-yellow-600">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                        </svg>
-                    </button>
+                    <div class="relative">
+                        <input type="text" id="destination-input" class="w-full p-4 pr-12 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Digite ou grave seu destino">
+                        <button id="destination-voice-btn" onclick="toggleVoiceRecording('destination')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-taxi-yellow transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                            </svg>
+                        </button>
+                    </div>
                     <div id="destination-suggestions" class="absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 hidden shadow-lg"></div>
                 </div>
 
@@ -200,12 +223,24 @@
                             </div>
                         </div>
                         
-                        <div class="flex space-x-3">
+                        <div class="flex space-x-3 mb-4">
                             <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium">
                                 📞 Ligar
                             </button>
                             <button class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg font-medium">
                                 💬 Mensagem
+                            </button>
+                        </div>
+                        
+                        <!-- Passenger Finish Button -->
+                        <div id="passenger-finish-section" class="hidden">
+                            <div class="bg-green-50 p-4 rounded-lg mb-4">
+                                <p class="text-sm text-green-800 mb-2">
+                                    <strong>✅ Chegou ao destino?</strong> Confirme o final da corrida.
+                                </p>
+                            </div>
+                            <button onclick="passengerFinishRide()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                                ✅ Confirmar Chegada
                             </button>
                         </div>
                     </div>
@@ -254,6 +289,17 @@
 
         <!-- Driver Dashboard -->
         <div id="driver-dashboard" class="hidden p-6 max-w-md mx-auto space-y-6">
+            <!-- Driver Info -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-taxi-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span id="driver-type-icon" class="text-2xl">🏍️</span>
+                    </div>
+                    <h3 class="font-bold text-lg" id="driver-welcome">Bem-vindo!</h3>
+                    <p class="text-gray-600 text-sm" id="driver-type-text">Mototaxista</p>
+                </div>
+            </div>
+
             <!-- Payment Status -->
             <div id="payment-status" class="bg-white rounded-2xl shadow-lg p-6">
                 <div class="text-center">
@@ -284,20 +330,29 @@
             </div>
 
             <!-- Daily Stats -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
-                    <div class="text-3xl font-bold text-taxi-yellow" id="daily-rides">0</div>
-                    <div class="text-sm text-gray-600">Corridas</div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-taxi-yellow" id="daily-rides">0</div>
+                    <div class="text-xs text-gray-600">Corridas</div>
                 </div>
-                <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
-                    <div class="text-3xl font-bold text-green-500" id="daily-earnings">R$ 0</div>
-                    <div class="text-sm text-gray-600">Ganhos</div>
+                <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-green-500" id="daily-earnings">R$ 0</div>
+                    <div class="text-xs text-gray-600">Ganhos</div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-red-500" id="daily-fee">R$ 3</div>
+                    <div class="text-xs text-gray-600">Taxa Diária</div>
                 </div>
             </div>
 
             <!-- Available Rides -->
             <div id="available-rides" class="bg-white rounded-2xl shadow-lg p-6">
-                <h3 class="font-bold text-lg mb-4">Corridas Disponíveis</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg">Corridas Disponíveis</h3>
+                    <div id="notification-badge" class="hidden bg-red-500 text-white text-xs px-2 py-1 rounded-full pulse-animation">
+                        Nova!
+                    </div>
+                </div>
                 <div id="rides-list">
                     <p class="text-gray-500 text-center py-8">Nenhuma corrida disponível</p>
                 </div>
@@ -305,11 +360,24 @@
 
             <!-- Current Ride -->
             <div id="current-ride" class="hidden bg-white rounded-2xl shadow-lg p-6">
-                <h3 class="font-bold text-lg mb-4">Corrida Atual</h3>
+                <h3 class="font-bold text-lg mb-4 text-green-600">🚗 Corrida em Andamento</h3>
                 <div id="current-ride-details" class="mb-4"></div>
+                <div class="bg-yellow-50 p-4 rounded-lg mb-4">
+                    <p class="text-sm text-yellow-800">
+                        <strong>⚠️ Importante:</strong> Confirme com o passageiro antes de finalizar a corrida.
+                    </p>
+                </div>
                 <button onclick="finishRide()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
-                    Finalizar Corrida
+                    ✅ Finalizar Corrida
                 </button>
+            </div>
+
+            <!-- Earnings History -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="font-bold text-lg mb-4">Histórico de Ganhos</h3>
+                <div id="earnings-history">
+                    <p class="text-gray-500 text-center py-4">Nenhuma corrida finalizada hoje</p>
+                </div>
             </div>
         </div>
     </div>
@@ -595,11 +663,86 @@
             document.getElementById(containerId).classList.add('hidden');
         }
 
-        function useGPS(type) {
-            const places = ['Centro de Tapauá', 'Mercado Municipal', 'Porto do Rio'];
-            const randomPlace = places[Math.floor(Math.random() * places.length)];
-            document.getElementById(`${type}-input`).value = randomPlace;
-            showToast(`📍 Localização obtida: ${randomPlace}`, 'success');
+        // Voice recording functionality
+        let voiceRecognition = null;
+        let currentRecordingField = null;
+
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                voiceRecognition = new SpeechRecognition();
+                voiceRecognition.continuous = false;
+                voiceRecognition.interimResults = false;
+                voiceRecognition.lang = 'pt-BR';
+                
+                voiceRecognition.onstart = function() {
+                    const btn = document.getElementById(`${currentRecordingField}-voice-btn`);
+                    btn.classList.add('recording');
+                    btn.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="voice-wave"></div>
+                            <div class="voice-wave"></div>
+                            <div class="voice-wave"></div>
+                            <div class="voice-wave"></div>
+                        </div>
+                    `;
+                    showToast('🎤 Gravando... Fale agora!', 'info');
+                };
+                
+                voiceRecognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById(`${currentRecordingField}-input`).value = transcript;
+                    showToast(`✅ Gravação capturada: "${transcript}"`, 'success');
+                };
+                
+                voiceRecognition.onerror = function(event) {
+                    showToast('❌ Erro na gravação. Tente novamente.', 'error');
+                    resetVoiceButton();
+                };
+                
+                voiceRecognition.onend = function() {
+                    resetVoiceButton();
+                };
+            }
+        }
+
+        function toggleVoiceRecording(field) {
+            if (!voiceRecognition) {
+                initVoiceRecognition();
+            }
+            
+            if (!voiceRecognition) {
+                showToast('❌ Gravação de voz não suportada neste navegador', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById(`${field}-voice-btn`);
+            
+            if (btn.classList.contains('recording')) {
+                voiceRecognition.stop();
+                return;
+            }
+            
+            currentRecordingField = field;
+            
+            try {
+                voiceRecognition.start();
+            } catch (error) {
+                showToast('❌ Erro ao iniciar gravação. Verifique as permissões.', 'error');
+            }
+        }
+
+        function resetVoiceButton() {
+            if (currentRecordingField) {
+                const btn = document.getElementById(`${currentRecordingField}-voice-btn`);
+                btn.classList.remove('recording');
+                btn.innerHTML = `
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                    </svg>
+                `;
+                currentRecordingField = null;
+            }
         }
 
         // Passenger Functions
@@ -644,34 +787,18 @@
                     d.type === rideType
                 );
                 if (availableDrivers.length > 0) {
-                    const driver = availableDrivers[0];
-                    ride.driverId = driver.id;
-                    ride.status = 'accepted';
-                    
-                    const vehicleIcon = rideType === 'frete' ? '🚛' : '🏍️';
-                    const vehicleText = rideType === 'frete' ? 'Carro frete' : 'Mototáxi';
-                    
-                    document.getElementById('status-icon').textContent = vehicleIcon;
-                    document.getElementById('status-title').textContent = `${vehicleText} encontrado!`;
-                    document.getElementById('status-description').textContent = 'Seu motorista está a caminho';
-                    
-                    document.getElementById('driver-name').textContent = driver.name;
-                    document.getElementById('driver-phone').textContent = driver.phone;
-                    document.getElementById('driver-details').classList.remove('hidden');
-                    
-                    saveData();
-                    showToast(`${vehicleText} encontrado!`, 'success');
+                    // Don't auto-assign driver, let them accept manually
+                    showToast(`Procurando ${serviceType}... Aguarde!`, 'info');
+                } else {
+                    document.getElementById('status-icon').textContent = '❌';
+                    document.getElementById('status-title').textContent = 'Nenhum motorista disponível';
+                    document.getElementById('status-description').textContent = 'Tente novamente em alguns minutos';
+                    showToast('Nenhum táxi disponível no momento', 'error');
                     
                     setTimeout(() => {
-                        ride.status = 'completed';
-                        document.getElementById('status-icon').textContent = '✅';
-                        document.getElementById('status-title').textContent = 'Corrida finalizada!';
-                        document.getElementById('status-description').textContent = 'Obrigado por usar o Táxi Tapauá';
-                        saveData();
-                        showToast('Corrida finalizada com sucesso!', 'success');
-                    }, 15000);
-                } else {
-                    showToast('Nenhum táxi disponível no momento', 'error');
+                        document.getElementById('ride-status').classList.add('hidden');
+                        document.getElementById('request-ride-btn').classList.remove('hidden');
+                    }, 3000);
                 }
             }, 3000);
         }
@@ -727,6 +854,16 @@
             const driver = appData.currentUser;
             if (!driver) return;
             
+            // Update driver info
+            document.getElementById('driver-welcome').textContent = `Olá, ${driver.name}!`;
+            if (driver.type === 'frete') {
+                document.getElementById('driver-type-icon').textContent = '🚛';
+                document.getElementById('driver-type-text').textContent = 'Motorista de Carro Frete';
+            } else {
+                document.getElementById('driver-type-icon').textContent = '🏍️';
+                document.getElementById('driver-type-text').textContent = 'Mototaxista';
+            }
+            
             const paymentDiv = document.getElementById('payment-status');
             if (driver.paymentStatus === 'paid') {
                 paymentDiv.innerHTML = `
@@ -756,6 +893,7 @@
             document.getElementById('daily-earnings').textContent = `R$ ${driver.dailyEarnings.toFixed(0)}`;
             
             updateAvailableRides();
+            updateEarningsHistory();
         }
 
         function makePayment() {
@@ -809,20 +947,35 @@
         }
 
         function updateAvailableRides() {
-            const driverType = appData.currentUser ? appData.currentUser.type : 'mototaxi';
+            if (!appData.currentUser || appData.currentUser.status !== 'online') {
+                document.getElementById('rides-list').innerHTML = '<p class="text-gray-500 text-center py-8">Você está offline</p>';
+                document.getElementById('notification-badge').classList.add('hidden');
+                return;
+            }
+            
+            const driverType = appData.currentUser.type;
             const availableRides = appData.rides.filter(r => 
                 r.status === 'searching' && 
                 r.type === driverType
             );
             const ridesList = document.getElementById('rides-list');
+            const notificationBadge = document.getElementById('notification-badge');
             
             if (availableRides.length === 0) {
                 ridesList.innerHTML = '<p class="text-gray-500 text-center py-8">Nenhuma corrida disponível</p>';
+                notificationBadge.classList.add('hidden');
                 return;
             }
             
+            // Show notification badge for new rides
+            if (availableRides.length > 0) {
+                notificationBadge.classList.remove('hidden');
+                playNotificationSound();
+                showToast(`🚨 Nova corrida disponível! ${driverType === 'frete' ? 'Carro Frete' : 'Mototáxi'}`, 'info');
+            }
+            
             ridesList.innerHTML = availableRides.map(ride => `
-                <div class="border border-gray-200 rounded-lg p-4 mb-3">
+                <div class="border-2 border-taxi-yellow rounded-lg p-4 mb-3 bg-yellow-50">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
                             <div class="flex items-center mb-2">
@@ -833,18 +986,19 @@
                                 <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                                 <span class="text-gray-600">${ride.destination}</span>
                             </div>
-                            <div class="text-xl font-bold text-green-600">R$ ${ride.price.toFixed(2)}</div>
+                            <div class="flex items-center justify-between">
+                                <div class="text-xl font-bold text-green-600">R$ ${ride.price.toFixed(2)}</div>
+                                <div class="text-sm text-gray-500">
+                                    ${new Date(ride.createdAt).toLocaleTimeString()}
+                                </div>
+                            </div>
                         </div>
-                        <button onclick="acceptRide('${ride.id}')" class="gradient-bg text-taxi-dark px-4 py-2 rounded-lg font-bold pulse-animation">
+                        <button onclick="acceptRide('${ride.id}')" class="gradient-bg text-taxi-dark px-4 py-2 rounded-lg font-bold pulse-animation ml-3">
                             Aceitar
                         </button>
                     </div>
                 </div>
             `).join('');
-            
-            if (availableRides.length > 0) {
-                playNotificationSound();
-            }
         }
 
         function acceptRide(rideId) {
@@ -853,6 +1007,7 @@
             
             ride.status = 'accepted';
             ride.driverId = appData.currentUser.id;
+            ride.acceptedAt = new Date().toISOString();
             
             document.getElementById('current-ride-details').innerHTML = `
                 <div class="space-y-3">
@@ -864,14 +1019,50 @@
                         <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
                         <span><strong>Destino:</strong> ${ride.destination}</span>
                     </div>
-                    <div class="text-xl font-bold text-green-600">R$ ${ride.price.toFixed(2)}</div>
+                    <div class="flex items-center justify-between">
+                        <div class="text-xl font-bold text-green-600">R$ ${ride.price.toFixed(2)}</div>
+                        <div class="text-sm text-gray-500">
+                            Aceita às ${new Date(ride.acceptedAt).toLocaleTimeString()}
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <p class="text-sm text-blue-800">
+                            <strong>💰 Você receberá:</strong> R$ ${(ride.price - 1.00).toFixed(2)} (Taxa: R$ 1,00)
+                        </p>
+                    </div>
                 </div>
             `;
             
             document.getElementById('current-ride').classList.remove('hidden');
+            
+            // Update passenger interface
+            updatePassengerWithDriver(ride);
+            
             saveData();
-            showToast('Corrida aceita!', 'success');
+            showToast('Corrida aceita! Dirija-se ao local de partida.', 'success');
             updateAvailableRides();
+        }
+
+        function updatePassengerWithDriver(ride) {
+            const driver = appData.currentUser;
+            const vehicleIcon = ride.type === 'frete' ? '🚛' : '🏍️';
+            const vehicleText = ride.type === 'frete' ? 'Carro frete' : 'Mototáxi';
+            
+            // Update passenger status if they're still on the page
+            if (document.getElementById('status-icon')) {
+                document.getElementById('status-icon').textContent = vehicleIcon;
+                document.getElementById('status-title').textContent = `${vehicleText} encontrado!`;
+                document.getElementById('status-description').textContent = 'Seu motorista está a caminho';
+                
+                document.getElementById('driver-name').textContent = driver.name;
+                document.getElementById('driver-phone').textContent = driver.phone;
+                document.getElementById('driver-details').classList.remove('hidden');
+                
+                // Show finish button for passenger after some time
+                setTimeout(() => {
+                    document.getElementById('passenger-finish-section').classList.remove('hidden');
+                }, 10000);
+            }
         }
 
         function finishRide() {
@@ -879,9 +1070,24 @@
             if (!currentRide) return;
             
             currentRide.status = 'completed';
+            currentRide.completedAt = new Date().toISOString();
             appData.currentUser.dailyRides++;
             const netEarnings = currentRide.price - 1.00; // Taxa de R$ 1,00 por corrida
             appData.currentUser.dailyEarnings += netEarnings;
+            
+            // Add to earnings history
+            if (!appData.currentUser.earningsHistory) {
+                appData.currentUser.earningsHistory = [];
+            }
+            appData.currentUser.earningsHistory.push({
+                rideId: currentRide.id,
+                origin: currentRide.origin,
+                destination: currentRide.destination,
+                grossAmount: currentRide.price,
+                fee: 1.00,
+                netAmount: netEarnings,
+                completedAt: currentRide.completedAt
+            });
             
             const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
             if (driverIndex !== -1) {
@@ -892,8 +1098,81 @@
             saveData();
             
             document.getElementById('current-ride').classList.add('hidden');
+            document.getElementById('notification-badge').classList.add('hidden');
             showToast(`Corrida finalizada! +R$ ${netEarnings.toFixed(2)} (taxa: R$ 1,00)`, 'success');
             updateDriverDashboard();
+        }
+
+        function updateEarningsHistory() {
+            const driver = appData.currentUser;
+            if (!driver || !driver.earningsHistory || driver.earningsHistory.length === 0) {
+                document.getElementById('earnings-history').innerHTML = '<p class="text-gray-500 text-center py-4">Nenhuma corrida finalizada hoje</p>';
+                return;
+            }
+            
+            const today = new Date().toDateString();
+            const todayEarnings = driver.earningsHistory.filter(earning => 
+                new Date(earning.completedAt).toDateString() === today
+            );
+            
+            if (todayEarnings.length === 0) {
+                document.getElementById('earnings-history').innerHTML = '<p class="text-gray-500 text-center py-4">Nenhuma corrida finalizada hoje</p>';
+                return;
+            }
+            
+            document.getElementById('earnings-history').innerHTML = todayEarnings.map(earning => `
+                <div class="border border-gray-200 rounded-lg p-3 mb-2">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-800">${earning.origin} → ${earning.destination}</div>
+                            <div class="text-xs text-gray-500">${new Date(earning.completedAt).toLocaleTimeString()}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-bold text-green-600">+R$ ${earning.netAmount.toFixed(2)}</div>
+                            <div class="text-xs text-gray-500">Taxa: R$ ${earning.fee.toFixed(2)}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function passengerFinishRide() {
+            // This function allows passengers to also finish the ride
+            const currentRide = appData.rides.find(r => r.status === 'accepted');
+            if (!currentRide) return;
+            
+            currentRide.status = 'completed';
+            currentRide.completedAt = new Date().toISOString();
+            
+            // Update driver earnings
+            const driver = appData.drivers.find(d => d.id === currentRide.driverId);
+            if (driver) {
+                driver.dailyRides++;
+                const netEarnings = currentRide.price - 1.00;
+                driver.dailyEarnings += netEarnings;
+                
+                if (!driver.earningsHistory) {
+                    driver.earningsHistory = [];
+                }
+                driver.earningsHistory.push({
+                    rideId: currentRide.id,
+                    origin: currentRide.origin,
+                    destination: currentRide.destination,
+                    grossAmount: currentRide.price,
+                    fee: 1.00,
+                    netAmount: netEarnings,
+                    completedAt: currentRide.completedAt
+                });
+            }
+            
+            saveData();
+            
+            document.getElementById('status-icon').textContent = '✅';
+            document.getElementById('status-title').textContent = 'Corrida finalizada!';
+            document.getElementById('status-description').textContent = 'Obrigado por usar o Táxi Tapauá';
+            document.getElementById('passenger-finish-section').classList.add('hidden');
+            
+            showToast('Corrida finalizada com sucesso!', 'success');
         }
 
         // Admin Functions
@@ -1185,5 +1464,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95a8de0d1087d838',t:'MTc1MTczOTUzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95a906a40698f1c9',t:'MTc1MTc0MTE5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

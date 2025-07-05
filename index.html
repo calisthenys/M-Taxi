@@ -404,6 +404,32 @@
                 </div>
             </div>
 
+            <!-- App Payment Status -->
+            <div id="app-payment-status" class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">💳</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Pagamento do Aplicativo</h3>
+                    <div id="app-payment-details" class="mb-4">
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-600">Corridas não pagas:</span>
+                                <span class="font-bold text-red-600" id="unpaid-rides-count">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total devido:</span>
+                                <span class="font-bold text-red-600" id="total-owed">R$ 0,00</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-4">R$ 1,00 por corrida realizada</p>
+                    </div>
+                    <button onclick="payAppFees()" id="pay-app-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                        Pagar via PIX
+                    </button>
+                </div>
+            </div>
+
             <!-- Current Ride -->
             <div id="current-ride" class="hidden bg-white rounded-2xl shadow-lg p-6">
                 <h3 class="font-bold text-lg mb-4 text-green-600">🚗 Corrida em Andamento</h3>
@@ -784,6 +810,11 @@
             const driver = appData.currentUser;
             if (!driver) return;
             
+            // Initialize payment tracking if not exists
+            if (!driver.unpaidRides) driver.unpaidRides = 0;
+            if (!driver.totalOwed) driver.totalOwed = 0;
+            if (!driver.ridePayments) driver.ridePayments = [];
+            
             document.getElementById('driver-welcome').textContent = `Olá, ${driver.name}!`;
             if (driver.type === 'frete') {
                 document.getElementById('driver-type-icon').textContent = '🚛';
@@ -793,10 +824,15 @@
                 document.getElementById('driver-type-text').textContent = 'Mototaxista';
             }
             
+            // Check if daily payment is overdue
+            const today = new Date();
+            const lastPayment = driver.lastDailyPayment ? new Date(driver.lastDailyPayment) : null;
+            const isPaymentOverdue = !lastPayment || (today - lastPayment) > (24 * 60 * 60 * 1000);
+            
             const paymentDiv = document.getElementById('payment-status');
             const statusBtn = document.getElementById('status-toggle');
             
-            if (driver.paymentStatus === 'paid') {
+            if (driver.paymentStatus === 'paid' && !isPaymentOverdue) {
                 paymentDiv.innerHTML = `
                     <div class="text-center">
                         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -816,9 +852,41 @@
                     statusBtn.textContent = 'Parado';
                 }
             } else {
+                if (isPaymentOverdue) {
+                    driver.paymentStatus = 'overdue';
+                }
+                
+                paymentDiv.innerHTML = `
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-3xl">💰</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">${isPaymentOverdue ? 'Pagamento em Atraso' : 'Taxa Diária Pendente'}</h3>
+                        <p class="text-gray-600 mb-4">Pague R$ 3,00 para começar a receber corridas</p>
+                        <button onclick="makePayment()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                            Pagar via PIX - R$ 3,00
+                        </button>
+                    </div>
+                `;
+                
                 statusBtn.disabled = true;
                 statusBtn.className = 'bg-gray-400 text-white px-6 py-3 rounded-full font-medium cursor-not-allowed';
                 statusBtn.textContent = 'Pague a Taxa';
+            }
+            
+            // Update app payment status
+            document.getElementById('unpaid-rides-count').textContent = driver.unpaidRides || 0;
+            document.getElementById('total-owed').textContent = `R$ ${(driver.totalOwed || 0).toFixed(2)}`;
+            
+            const payAppBtn = document.getElementById('pay-app-btn');
+            if (driver.totalOwed && driver.totalOwed > 0) {
+                payAppBtn.textContent = `Pagar R$ ${driver.totalOwed.toFixed(2)} via PIX`;
+                payAppBtn.disabled = false;
+                payAppBtn.className = 'w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200';
+            } else {
+                payAppBtn.textContent = 'Nenhum valor devido';
+                payAppBtn.disabled = true;
+                payAppBtn.className = 'w-full bg-gray-400 text-white font-bold py-3 px-6 rounded-xl cursor-not-allowed';
             }
             
             updateAvailableRides();
@@ -829,6 +897,7 @@
             
             setTimeout(() => {
                 appData.currentUser.paymentStatus = 'paid';
+                appData.currentUser.lastDailyPayment = new Date().toISOString();
                 const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
                 if (driverIndex !== -1) {
                     appData.drivers[driverIndex] = appData.currentUser;
@@ -837,6 +906,41 @@
                 saveData();
                 
                 showToast('Pagamento realizado com sucesso!', 'success');
+                updateDriverDashboard();
+            }, 2000);
+        }
+
+        function payAppFees() {
+            const driver = appData.currentUser;
+            if (!driver || !driver.totalOwed || driver.totalOwed <= 0) {
+                showToast('Nenhum valor devido ao aplicativo', 'info');
+                return;
+            }
+            
+            showToast(`Processando pagamento PIX de R$ ${driver.totalOwed.toFixed(2)}...`, 'info');
+            
+            setTimeout(() => {
+                // Mark all ride payments as paid
+                if (driver.ridePayments) {
+                    driver.ridePayments.forEach(payment => {
+                        payment.paid = true;
+                        payment.paidAt = new Date().toISOString();
+                    });
+                }
+                
+                driver.unpaidRides = 0;
+                driver.totalOwed = 0;
+                driver.lastAppPayment = new Date().toISOString();
+                
+                const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
+                if (driverIndex !== -1) {
+                    appData.drivers[driverIndex] = driver;
+                }
+                
+                localStorage.setItem('current_driver', JSON.stringify(driver));
+                saveData();
+                
+                showToast('Pagamento do aplicativo realizado com sucesso!', 'success');
                 updateDriverDashboard();
             }, 2000);
         }
@@ -987,8 +1091,30 @@
                 currentRide.status = 'completed';
                 currentRide.completedAt = new Date().toISOString();
                 
+                // Add ride payment tracking
                 appData.currentUser.dailyRides++;
                 appData.currentUser.dailyEarnings += (currentRide.price - 1.00);
+                
+                // Initialize payment tracking if not exists
+                if (!appData.currentUser.ridePayments) {
+                    appData.currentUser.ridePayments = [];
+                }
+                if (!appData.currentUser.unpaidRides) {
+                    appData.currentUser.unpaidRides = 0;
+                }
+                if (!appData.currentUser.totalOwed) {
+                    appData.currentUser.totalOwed = 0;
+                }
+                
+                // Add R$1 debt for this ride
+                appData.currentUser.unpaidRides++;
+                appData.currentUser.totalOwed += 1.00;
+                appData.currentUser.ridePayments.push({
+                    rideId: currentRide.id,
+                    amount: 1.00,
+                    date: new Date().toISOString(),
+                    paid: false
+                });
                 
                 const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
                 if (driverIndex !== -1) {
@@ -999,7 +1125,7 @@
                 saveData();
                 
                 document.getElementById('current-ride').classList.add('hidden');
-                showToast('Corrida finalizada com sucesso!', 'success');
+                showToast('Corrida finalizada! R$ 1,00 adicionado à sua conta do app.', 'success');
                 updateDriverDashboard();
             }
         }
@@ -1034,27 +1160,81 @@
                 return;
             }
             
-            driversList.innerHTML = appData.drivers.map(driver => `
-                <div class="border rounded-lg p-4 flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-taxi-yellow rounded-full flex items-center justify-center mr-3">
-                            <span class="text-lg">${driver.type === 'frete' ? '🚛' : '🏍️'}</span>
+            driversList.innerHTML = appData.drivers.map(driver => {
+                // Check if daily payment is overdue
+                const today = new Date();
+                const lastPayment = driver.lastDailyPayment ? new Date(driver.lastDailyPayment) : null;
+                const isPaymentOverdue = !lastPayment || (today - lastPayment) > (24 * 60 * 60 * 1000);
+                
+                // Initialize payment tracking if not exists
+                const unpaidRides = driver.unpaidRides || 0;
+                const totalOwed = driver.totalOwed || 0;
+                
+                let paymentStatusText = '';
+                let paymentStatusColor = '';
+                
+                if (isPaymentOverdue) {
+                    paymentStatusText = '🔴 Taxa em Atraso';
+                    paymentStatusColor = 'text-red-600';
+                } else if (driver.paymentStatus === 'paid') {
+                    paymentStatusText = '✅ Taxa Paga';
+                    paymentStatusColor = 'text-green-600';
+                } else {
+                    paymentStatusText = '❌ Taxa Pendente';
+                    paymentStatusColor = 'text-red-600';
+                }
+                
+                return `
+                    <div class="border rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-taxi-yellow rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-lg">${driver.type === 'frete' ? '🚛' : '🏍️'}</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">${driver.name}</div>
+                                    <div class="text-sm text-gray-600">${driver.phone} • ${driver.vehicleColor}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium ${driver.status === 'online' ? 'text-green-600' : 'text-gray-500'}">
+                                    ${driver.status === 'online' ? '🟢 Online' : '⚫ Offline'}
+                                </div>
+                                <div class="text-xs ${paymentStatusColor}">
+                                    ${paymentStatusText}
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="font-medium">${driver.name}</div>
-                            <div class="text-sm text-gray-600">${driver.phone} • ${driver.vehicleColor}</div>
-                        </div>
+                        
+                        ${unpaidRides > 0 || totalOwed > 0 ? `
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-3 mt-3">
+                                <div class="text-sm text-red-800">
+                                    <div class="font-medium mb-1">💳 Débitos do Aplicativo:</div>
+                                    <div class="flex justify-between">
+                                        <span>Corridas não pagas:</span>
+                                        <span class="font-bold">${unpaidRides}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Total devido:</span>
+                                        <span class="font-bold">R$ ${totalOwed.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${isPaymentOverdue ? `
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
+                                <div class="text-sm text-yellow-800">
+                                    <div class="font-medium">⚠️ Pagamento Diário em Atraso</div>
+                                    <div class="text-xs mt-1">
+                                        ${lastPayment ? `Último pagamento: ${new Date(lastPayment).toLocaleDateString('pt-BR')}` : 'Nunca pagou a taxa diária'}
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
-                    <div class="text-right">
-                        <div class="text-sm font-medium ${driver.status === 'online' ? 'text-green-600' : 'text-gray-500'}">
-                            ${driver.status === 'online' ? '🟢 Online' : '⚫ Offline'}
-                        </div>
-                        <div class="text-xs text-gray-500">
-                            ${driver.paymentStatus === 'paid' ? '✅ Pago' : '❌ Pendente'}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Notification Functions
@@ -1256,5 +1436,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95aa6d05e6f9f18e',t:'MTc1MTc1NTg3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95aaabfad4f728b5',t:'MTc1MTc1ODQ1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

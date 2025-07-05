@@ -316,15 +316,15 @@
                 </div>
             </div>
 
-            <!-- Status Toggle -->
+            <!-- Work Toggle -->
             <div class="bg-white rounded-2xl shadow-lg p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="font-bold text-lg">Status</h3>
-                        <p class="text-gray-600 text-sm">Disponível para corridas</p>
+                        <h3 class="font-bold text-lg">Começar Trabalhar</h3>
+                        <p class="text-gray-600 text-sm">Receber notificações de corridas</p>
                     </div>
                     <button id="status-toggle" onclick="toggleDriverStatus()" class="bg-gray-400 text-white px-6 py-3 rounded-full font-medium" disabled>
-                        Offline
+                        Parado
                     </button>
                 </div>
             </div>
@@ -811,23 +811,19 @@
             const cpf = document.getElementById('driver-cpf').value;
             const age = document.getElementById('driver-age').value;
             
-            if (!type || !name || !phone || !cpf || !age) {
-                showToast('Por favor, preencha todos os campos', 'error');
-                return;
-            }
-            
-            if (parseInt(age) < 18) {
+            // Nenhum campo é obrigatório - permite cadastro com campos vazios
+            if (age && parseInt(age) < 18) {
                 showToast('Idade mínima: 18 anos', 'error');
                 return;
             }
             
             const driver = {
                 id: generateId(),
-                type,
-                name,
-                phone,
-                cpf,
-                age: parseInt(age),
+                type: type || 'mototaxi',
+                name: name || 'Motorista',
+                phone: phone || 'Não informado',
+                cpf: cpf || 'Não informado',
+                age: age ? parseInt(age) : 0,
                 status: 'offline',
                 paymentStatus: 'pending',
                 dailyRides: 0,
@@ -882,10 +878,10 @@
                 const statusBtn = document.getElementById('status-toggle');
                 if (driver.status === 'online') {
                     statusBtn.className = 'bg-green-500 text-white px-6 py-3 rounded-full font-medium';
-                    statusBtn.textContent = 'Online';
+                    statusBtn.textContent = 'Trabalhando';
                 } else {
                     statusBtn.className = 'bg-gray-500 text-white px-6 py-3 rounded-full font-medium';
-                    statusBtn.textContent = 'Offline';
+                    statusBtn.textContent = 'Parado';
                 }
             }
             
@@ -930,7 +926,7 @@
             localStorage.setItem('current_driver', JSON.stringify(driver));
             saveData();
             
-            showToast(`Status: ${driver.status === 'online' ? 'Online' : 'Offline'}`, 'success');
+            showToast(`${driver.status === 'online' ? '✅ Começou a trabalhar! Você receberá notificações de corridas' : '⏸️ Parou de trabalhar. Não receberá mais notificações'}`, 'success');
             updateDriverDashboard();
             
             if (driver.status === 'online') {
@@ -948,7 +944,7 @@
 
         function updateAvailableRides() {
             if (!appData.currentUser || appData.currentUser.status !== 'online') {
-                document.getElementById('rides-list').innerHTML = '<p class="text-gray-500 text-center py-8">Você está offline</p>';
+                document.getElementById('rides-list').innerHTML = '<p class="text-gray-500 text-center py-8">Clique em "Começar Trabalhar" para receber corridas</p>';
                 document.getElementById('notification-badge').classList.add('hidden');
                 return;
             }
@@ -1464,5 +1460,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95a906a40698f1c9',t:'MTc1MTc0MTE5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95a9452a531c2912',t:'MTc1MTc0Mzc1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

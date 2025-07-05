@@ -11,7 +11,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="app.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -584,14 +583,13 @@
   <script>
     // Configuração do Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyAJk8-W80iJyGHoJBeNZDo5k9wmh8HRPrQ",
-  authDomain: "mototaxi-tapaua.firebaseapp.com",
-  databaseURL: "https://mototaxi-tapaua-default-rtdb.firebaseio.com",
-  projectId: "mototaxi-tapaua",
-  storageBucket: "mototaxi-tapaua.firebasestorage.app",
-  messagingSenderId: "629986832248",
-  appId: "1:629986832248:web:fd044f24cc51aa018ba28d",
-  measurementId: "G-1S6PYNHWN5"
+      apiKey: "AIzaSyDemoKey123456789",
+      authDomain: "mototaxi-tapaua.firebaseapp.com",
+      databaseURL: "https://mototaxi-tapaua-default-rtdb.firebaseio.com/",
+      projectId: "mototaxi-tapaua",
+      storageBucket: "mototaxi-tapaua.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef123456789"
     };
 
     // Inicializar Firebase
@@ -1011,313 +1009,242 @@
       document.getElementById('ganhos-hoje').textContent = `R$ ${estatisticas.ganhos}`;
     }
 
-    // Funções de Geolocalização
-    function obterLocalizacaoAtual(campo) {
-      const botao = document.getElementById(`btn-gps-${campo}`);
-      const input = document.getElementById(campo);
+    // Funções Administrativas
+    function abrirAreaAdministrativa() {
+      document.getElementById('modal-login-admin').classList.remove('hidden');
+    }
+
+    function fecharModalLoginAdmin() {
+      document.getElementById('modal-login-admin').classList.add('hidden');
+      document.getElementById('senha-admin').value = '';
+    }
+
+    function verificarSenhaAdmin() {
+      const senha = document.getElementById('senha-admin').value;
       
-      // Mostrar loading no botão
-      botao.innerHTML = `
-        <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-      `;
-      
-      if (!navigator.geolocation) {
-        mostrarToast('GPS não disponível neste dispositivo', 'error');
-        restaurarBotaoGPS(botao);
-        return;
+      if (senha === SENHA_ADMIN) {
+        fecharModalLoginAdmin();
+        document.getElementById('interface-admin').classList.remove('hidden');
+        carregarDadosAdmin();
+        mostrarToast('Acesso administrativo autorizado', 'success');
+      } else {
+        mostrarToast('Senha incorreta', 'error');
+        document.getElementById('senha-admin').value = '';
       }
+    }
 
-      const opcoes = {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
-      };
+    function sairAreaAdmin() {
+      document.getElementById('interface-admin').classList.add('hidden');
+      mostrarToast('Saindo da área administrativa', 'info');
+    }
 
-      navigator.geolocation.getCurrentPosition(
-        function(posicao) {
-          const lat = posicao.coords.latitude;
-          const lng = posicao.coords.longitude;
-          
-          localizacaoAtual = { lat, lng };
-          
-          // Converter coordenadas em endereço
-          obterEnderecoReverso(lat, lng, campo);
-          
-          mostrarToast('Localização obtida com sucesso!', 'success');
-          restaurarBotaoGPS(botao);
-        },
-        function(erro) {
-          let mensagem = 'Erro ao obter localização';
-          
-          switch(erro.code) {
-            case erro.PERMISSION_DENIED:
-              mensagem = 'Permissão de localização negada. Ative o GPS e permita o acesso.';
-              break;
-            case erro.POSITION_UNAVAILABLE:
-              mensagem = 'Localização indisponível. Verifique se o GPS está ativo.';
-              break;
-            case erro.TIMEOUT:
-              mensagem = 'Tempo limite para obter localização. Tente novamente.';
-              break;
+    function carregarDadosAdmin() {
+      // Carregar dados do Firebase ou localStorage
+      const motoristasLocal = JSON.parse(localStorage.getItem('motoristasAdmin') || '[]');
+      
+      // Simular alguns motoristas para demonstração
+      if (motoristasLocal.length === 0) {
+        const motoristasDemo = [
+          {
+            id: 'demo1',
+            nome: 'João Silva',
+            telefone: '(92) 99999-1111',
+            cpf: '123.456.789-01',
+            idade: 35,
+            cadastradoEm: new Date(Date.now() - 86400000 * 5).toISOString(),
+            online: true,
+            ultimaAtividade: new Date().toISOString(),
+            ultimoPagamento: new Date(Date.now() - 86400000 * 2).toISOString(),
+            diasAtraso: 0
+          },
+          {
+            id: 'demo2',
+            nome: 'Maria Santos',
+            telefone: '(92) 99999-2222',
+            cpf: '987.654.321-09',
+            idade: 28,
+            cadastradoEm: new Date(Date.now() - 86400000 * 10).toISOString(),
+            online: false,
+            ultimaAtividade: new Date(Date.now() - 86400000 * 1).toISOString(),
+            ultimoPagamento: new Date(Date.now() - 86400000 * 5).toISOString(),
+            diasAtraso: 3
+          },
+          {
+            id: 'demo3',
+            nome: 'Pedro Costa',
+            telefone: '(92) 99999-3333',
+            cpf: '456.789.123-45',
+            idade: 42,
+            cadastradoEm: new Date(Date.now() - 86400000 * 15).toISOString(),
+            online: true,
+            ultimaAtividade: new Date().toISOString(),
+            ultimoPagamento: new Date().toISOString(),
+            diasAtraso: 0
           }
-          
-          mostrarToast(mensagem, 'error');
-          restaurarBotaoGPS(botao);
-        },
-        opcoes
-      );
+        ];
+        
+        localStorage.setItem('motoristasAdmin', JSON.stringify(motoristasDemo));
+        motoristas = motoristasDemo;
+      } else {
+        motoristas = motoristasLocal;
+      }
+
+      atualizarEstatisticasAdmin();
+      atualizarListaMotoristas();
     }
 
-    function restaurarBotaoGPS(botao) {
-      botao.innerHTML = `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-      `;
+    function atualizarEstatisticasAdmin() {
+      const totalMotoristas = motoristas.length;
+      const motoristasOnline = motoristas.filter(m => m.online).length;
+      const corridasAtivas = corridas.filter(c => c.status === 'aceita').length;
+      const motoristasAtraso = motoristas.filter(m => m.diasAtraso > 0).length;
+
+      document.getElementById('total-motoristas').textContent = totalMotoristas;
+      document.getElementById('motoristas-online').textContent = motoristasOnline;
+      document.getElementById('corridas-ativas').textContent = corridasAtivas;
+      document.getElementById('motoristas-atraso').textContent = motoristasAtraso;
     }
 
-    function obterEnderecoReverso(lat, lng, campo) {
-      // Simulação de geocodificação reversa com locais conhecidos de Tapauá-AM
-      const locaisConhecidos = [
-        { nome: "Centro de Tapauá", lat: -5.1, lng: -63.2, raio: 0.01 },
-        { nome: "Porto de Tapauá", lat: -5.11, lng: -63.19, raio: 0.01 },
-        { nome: "Mercado Municipal", lat: -5.09, lng: -63.21, raio: 0.01 },
-        { nome: "Igreja Matriz", lat: -5.1, lng: -63.2, raio: 0.005 },
-        { nome: "Prefeitura Municipal", lat: -5.098, lng: -63.201, raio: 0.008 },
-        { nome: "Hospital Municipal", lat: -5.102, lng: -63.198, raio: 0.01 },
-        { nome: "Escola Estadual Amazonas", lat: -5.12, lng: -63.18, raio: 0.01 },
-        { nome: "Terminal Rodoviário", lat: -5.095, lng: -63.205, raio: 0.01 },
-        { nome: "Banco do Brasil", lat: -5.099, lng: -63.199, raio: 0.005 },
-        { nome: "Feira Livre", lat: -5.101, lng: -63.202, raio: 0.008 },
-        { nome: "Vila Nova", lat: -5.105, lng: -63.195, raio: 0.015 },
-        { nome: "Beira Rio", lat: -5.108, lng: -63.188, raio: 0.012 },
-        { nome: "Setor Comercial", lat: -5.097, lng: -63.203, raio: 0.01 },
-        { nome: "Praça Central", lat: -5.1, lng: -63.2, raio: 0.005 }
-      ];
-
-      let enderecoEncontrado = null;
+    function atualizarListaMotoristas() {
+      const container = document.getElementById('lista-motoristas-admin');
       
-      for (let local of locaisConhecidos) {
-        const distancia = Math.sqrt(
-          Math.pow(lat - local.lat, 2) + Math.pow(lng - local.lng, 2)
-        );
-        
-        if (distancia <= local.raio) {
-          enderecoEncontrado = local.nome;
-          break;
-        }
-      }
-
-      if (!enderecoEncontrado) {
-        // Se não encontrou um local conhecido, usar o centro como referência
-        enderecoEncontrado = "Centro de Tapauá";
-      }
-
-      document.getElementById(campo).value = enderecoEncontrado;
-    }
-
-    // Configurar autocomplete para endereços
-    function configurarAutoComplete() {
-      const enderecosTapaua = [
-        // Bairros e Regiões
-        "Centro de Tapauá",
-        "Vila Nova",
-        "Beira Rio", 
-        "Setor Comercial",
-        "Vila São José",
-        "Conjunto Habitacional",
-        "Área Portuária",
-        "Zona Rural",
-        
-        // Estabelecimentos Comerciais
-        "Mercado Municipal",
-        "Supermercado Central",
-        "Supermercado São José",
-        "Mercadinho da Vila",
-        "Farmácia Central",
-        "Farmácia São Paulo",
-        "Drogaria Popular",
-        "Padaria São José",
-        "Padaria Central",
-        "Açougue do Centro",
-        "Loja de Roupas Elegante",
-        "Casa de Materiais de Construção",
-        "Loja de Eletrodomésticos",
-        "Papelaria Escolar",
-        
-        // Serviços Públicos
-        "Prefeitura Municipal",
-        "Câmara Municipal",
-        "Fórum de Tapauá",
-        "Delegacia de Polícia",
-        "Corpo de Bombeiros",
-        "Correios",
-        "Cartório",
-        "Receita Federal",
-        "INSS",
-        
-        // Bancos e Financeiras
-        "Banco do Brasil",
-        "Caixa Econômica Federal",
-        "Bradesco",
-        "Banco da Amazônia",
-        "Lotérica",
-        "Casa Lotérica Central",
-        
-        // Saúde
-        "Hospital Municipal",
-        "Posto de Saúde Central",
-        "UBS Vila Nova",
-        "Clínica Médica",
-        "Laboratório de Análises",
-        "Consultório Odontológico",
-        
-        // Educação
-        "Escola Municipal José da Silva",
-        "Escola Estadual Amazonas",
-        "Colégio São José",
-        "Creche Municipal",
-        "Centro de Educação Infantil",
-        
-        // Transporte e Combustível
-        "Terminal Rodoviário",
-        "Porto de Tapauá",
-        "Posto de Combustível BR",
-        "Posto Shell",
-        "Oficina Mecânica Central",
-        "Borracharia",
-        
-        // Lazer e Cultura
-        "Praça Central",
-        "Praça da Igreja",
-        "Campo de Futebol Municipal",
-        "Quadra Poliesportiva",
-        "Centro Cultural",
-        "Biblioteca Municipal",
-        
-        // Religioso
-        "Igreja Matriz",
-        "Igreja Assembleia de Deus",
-        "Igreja Batista",
-        "Igreja Universal",
-        "Capela São José",
-        
-        // Outros Pontos
-        "Cemitério Municipal",
-        "Feira Livre",
-        "Mercado de Peixe",
-        "Rodoviária",
-        "Aeroporto Regional",
-        "Marina",
-        "Clube Social",
-        "Hotel Tapauá",
-        "Pousada Central",
-        "Restaurante do Porto",
-        "Lanchonete da Praça",
-        "Pizzaria Bella Vista"
-      ];
-
-      configurarCampoAutoComplete('origem', enderecosTapaua);
-      configurarCampoAutoComplete('destino', enderecosTapaua);
-    }
-
-    function configurarCampoAutoComplete(campoId, sugestoes) {
-      const input = document.getElementById(campoId);
-      const containerSugestoes = document.getElementById(`sugestoes-${campoId}`);
-
-      input.addEventListener('input', function() {
-        const valor = this.value.toLowerCase();
-        
-        if (valor.length < 2) {
-          containerSugestoes.classList.add('hidden');
-          return;
-        }
-
-        const sugestoesFiltradas = sugestoes.filter(endereco => 
-          endereco.toLowerCase().includes(valor)
-        );
-
-        if (sugestoesFiltradas.length === 0) {
-          containerSugestoes.classList.add('hidden');
-          return;
-        }
-
-        containerSugestoes.innerHTML = '';
-        containerSugestoes.classList.remove('hidden');
-
-        sugestoesFiltradas.slice(0, 5).forEach(endereco => {
-          const div = document.createElement('div');
-          div.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0';
-          div.textContent = endereco;
-          
-          div.addEventListener('click', function() {
-            input.value = endereco;
-            containerSugestoes.classList.add('hidden');
-          });
-          
-          containerSugestoes.appendChild(div);
-        });
-      });
-
-      // Fechar sugestões ao clicar fora
-      document.addEventListener('click', function(e) {
-        if (!input.contains(e.target) && !containerSugestoes.contains(e.target)) {
-          containerSugestoes.classList.add('hidden');
-        }
-      });
-    }
-
-    // Funções de Notificação e Alarme
-    function inicializarNotificacoes() {
-      // Solicitar permissão para notificações
-      if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
-    }
-
-    // Criar áudio de chamada para motoristas
-    let audioAlarme = null;
-    let intervalAlarme = null;
-
-    function criarAudioChamada() {
-      try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // Função para criar som de chamada telefônica
-        window.criarSomChamada = function() {
-          const oscillator = audioContext.createOscillator();
-          const gainNode = audioContext.createGain();
-          
-          oscillator.connect(gainNode);
-          gainNode.connect(audioContext.destination);
-          
-          // Frequências típicas de toque de telefone
-          oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Lá
-          oscillator.frequency.setValueAtTime(480, audioContext.currentTime + 0.4); // Si bemol
-          
-          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
-          
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.8);
-        };
-      } catch (e) {
-        console.log('Áudio não disponível');
-      }
-    }
-
-    function tocarAlarmeMotoristasOnline() {
-      // Verificar se há motoristas online
-      const motoristasOnline = motoristas.filter(m => m.online);
-      
-      if (motoristasOnline.length === 0) {
-        mostrarToast('Nenhum motorista online no momento', 'info');
+      if (motoristas.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <p>Nenhum motorista cadastrado</p>
+          </div>
+        `;
         return;
       }
 
-      // Para cada motorista online, simular alarme
-      motoristasOnline.forEach(motorista => {
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95a2a490951688fb',t:'MTc1MTY3NDI2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+      container.innerHTML = '';
+
+      motoristas.forEach(motorista => {
+        const div = document.createElement('div');
+        div.className = 'border border-gray-200 rounded-xl p-4 mb-4 hover:shadow-md transition-shadow';
+        
+        const statusOnline = motorista.online ? 
+          '<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">🟢 Online</span>' :
+          '<span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">🔴 Offline</span>';
+        
+        const statusPagamento = motorista.diasAtraso > 0 ?
+          `<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">⚠️ ${motorista.diasAtraso} dias em atraso</span>` :
+          '<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Em dia</span>';
+
+        div.innerHTML = `
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                  ${motorista.nome.charAt(0)}
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900">${motorista.nome}</h3>
+                  <p class="text-sm text-gray-600">${motorista.telefone}</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p class="text-gray-600">CPF: ${motorista.cpf}</p>
+                  <p class="text-gray-600">Idade: ${motorista.idade} anos</p>
+                </div>
+                <div>
+                  <p class="text-gray-600">Cadastrado: ${formatarData(motorista.cadastradoEm)}</p>
+                  <p class="text-gray-600">Última atividade: ${formatarData(motorista.ultimaAtividade)}</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 ml-4">
+              ${statusOnline}
+              ${statusPagamento}
+            </div>
+          </div>
+          <div class="flex gap-2 pt-3 border-t border-gray-100">
+            <button onclick="notificarMotorista('${motorista.id}')" 
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
+              📤 Notificar
+            </button>
+            <button onclick="removerMotorista('${motorista.id}')" 
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
+              🗑️ Remover
+            </button>
+          </div>
+        `;
+        
+        container.appendChild(div);
+      });
+    }
+
+    function notificarTodosAtrasados() {
+      const motoristasAtrasados = motoristas.filter(m => m.diasAtraso > 0);
+      
+      if (motoristasAtrasados.length === 0) {
+        mostrarToast('Nenhum motorista com pagamento em atraso', 'info');
+        return;
+      }
+
+      motoristasAtrasados.forEach(motorista => {
+        // Simular envio de notificação
+        console.log(`Notificação enviada para ${motorista.nome}: Pagamento em atraso há ${motorista.diasAtraso} dias`);
+      });
+
+      mostrarToast(`Notificação enviada para ${motoristasAtrasados.length} motorista(s) em atraso`, 'success');
+    }
+
+    function notificarMotorista(motoristaId) {
+      const motorista = motoristas.find(m => m.id === motoristaId);
+      if (!motorista) return;
+
+      motoristaParaNotificar = motorista;
+      
+      document.getElementById('info-motorista-notificacao').innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">
+            ${motorista.nome.charAt(0)}
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900">${motorista.nome}</p>
+            <p class="text-sm text-gray-600">${motorista.telefone}</p>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('modal-notificacao-personalizada').classList.remove('hidden');
+    }
+
+    function cancelarNotificacao() {
+      document.getElementById('modal-notificacao-personalizada').classList.add('hidden');
+      document.getElementById('mensagem-notificacao').value = '';
+      motoristaParaNotificar = null;
+    }
+
+    function enviarNotificacaoPersonalizada() {
+      const mensagem = document.getElementById('mensagem-notificacao').value.trim();
+      
+      if (!mensagem) {
+        mostrarToast('Digite uma mensagem', 'error');
+        return;
+      }
+
+      if (!motoristaParaNotificar) return;
+
+      // Simular envio de notificação
+      console.log(`Notificação personalizada enviada para ${motoristaParaNotificar.nome}: ${mensagem}`);
+      
+      mostrarToast(`Notificação enviada para ${motoristaParaNotificar.nome}`, 'success');
+      cancelarNotificacao();
+    }
+
+    function removerMotorista(motoristaId) {
+      const motorista = motoristas.find(m => m.id === motoristaId);
+      if (!motorista) return;
+
+      motoristaParaRemover = motorista;
+      
+      document.getElementById('info-motorista-remocao').innerHTML = `
+        <div class="flex items-center gap-3 mb-3">
+          <div class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">
+            <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95a3bb9992b088fb',t:'MTc1MTY4NTY5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>

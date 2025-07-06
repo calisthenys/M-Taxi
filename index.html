@@ -1130,8 +1130,8 @@
             // Update waiting screen to show driver found
             document.getElementById('waiting-status-icon').textContent = '✅';
             document.getElementById('waiting-status-icon').className = 'text-6xl mb-4';
-            document.getElementById('waiting-status-title').textContent = `${vehicleText} encontrado!`;
-            document.getElementById('waiting-status-description').textContent = `${driver.name} aceitou sua corrida`;
+            document.getElementById('waiting-status-title').textContent = 'Motorista Encontrado!';
+            document.getElementById('waiting-status-description').textContent = 'Seu motorista está a caminho';
             document.getElementById('waiting-cancel-section').classList.add('hidden');
             
             // Show driver details card
@@ -1276,10 +1276,40 @@
             const lastPayment = driver.lastDailyPayment ? new Date(driver.lastDailyPayment) : null;
             const isPaymentOverdue = !lastPayment || (today - lastPayment) > (24 * 60 * 60 * 1000);
             
+            // Check if app payment is overdue (blocks access completely)
+            const hasAppDebt = driver.totalOwed && driver.totalOwed > 0;
+            const isAppAccessBlocked = hasAppDebt;
+            
             const paymentDiv = document.getElementById('payment-status');
             const statusBtn = document.getElementById('status-toggle');
             
-            if (driver.paymentStatus === 'paid' && !isPaymentOverdue) {
+            // If app payment is overdue, block all access
+            if (isAppAccessBlocked) {
+                paymentDiv.innerHTML = `
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-3xl">🚫</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-red-600 mb-2">Acesso Bloqueado</h3>
+                        <p class="text-gray-600 mb-4">Quite seus débitos do aplicativo para continuar trabalhando</p>
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                            <div class="text-sm text-red-800">
+                                <div class="font-medium mb-1">💳 Débito Pendente:</div>
+                                <div class="text-lg font-bold">R$ ${driver.totalOwed.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <button onclick="payAppFees()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                            Pagar Débito via PIX
+                        </button>
+                    </div>
+                `;
+                
+                statusBtn.disabled = true;
+                statusBtn.className = 'bg-red-400 text-white px-6 py-3 rounded-full font-medium cursor-not-allowed';
+                statusBtn.textContent = 'Acesso Bloqueado';
+            }
+            // If daily payment is ok and no app debt
+            else if (driver.paymentStatus === 'paid' && !isPaymentOverdue) {
                 paymentDiv.innerHTML = `
                     <div class="text-center">
                         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1298,7 +1328,9 @@
                     statusBtn.className = 'bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-medium transition duration-200';
                     statusBtn.textContent = 'Parado';
                 }
-            } else {
+            } 
+            // If daily payment is overdue but no app debt
+            else {
                 if (isPaymentOverdue) {
                     driver.paymentStatus = 'overdue';
                 }
@@ -1355,6 +1387,14 @@
 
         function toggleDriverStatus() {
             const driver = appData.currentUser;
+            
+            // Check if app payment is overdue (blocks access completely)
+            const hasAppDebt = driver.totalOwed && driver.totalOwed > 0;
+            if (hasAppDebt) {
+                showToast('Quite seus débitos do aplicativo para trabalhar', 'error');
+                return;
+            }
+            
             if (!driver || driver.paymentStatus !== 'paid') {
                 showToast('Realize o pagamento diário primeiro', 'error');
                 return;
@@ -1398,6 +1438,14 @@
         }
 
         function updateAvailableRides() {
+            // Check if app payment is overdue (blocks access completely)
+            const hasAppDebt = appData.currentUser && appData.currentUser.totalOwed && appData.currentUser.totalOwed > 0;
+            if (hasAppDebt) {
+                document.getElementById('rides-list').innerHTML = '<p class="text-red-500 text-center py-8 font-medium">🚫 Acesso bloqueado - Quite seus débitos para receber corridas</p>';
+                document.getElementById('notification-badge').classList.add('hidden');
+                return;
+            }
+            
             if (!appData.currentUser || appData.currentUser.status !== 'online') {
                 document.getElementById('rides-list').innerHTML = '<p class="text-gray-500 text-center py-8">Clique em "Começar Trabalhar" para receber corridas</p>';
                 document.getElementById('notification-badge').classList.add('hidden');
@@ -1838,7 +1886,7 @@
                 type, 
                 amount, 
                 description,
-                simulatedDetectionTime: 15000 + Math.random() * 30000 // Random between 15-45 seconds
+                simulatedDetectionTime: 172800000 // 172800 seconds (48 hours)
             };
             
             document.getElementById('pix-title').textContent = description;
@@ -2420,5 +2468,5 @@
             });
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95ab803fb0cb88b4',t:'MTc1MTc2NzE0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95abd046a1a23289',t:'MTc1MTc3MDQyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

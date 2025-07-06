@@ -1444,16 +1444,39 @@
         let currentPixPayment = null;
 
         function showPixPayment(type, amount, description) {
-            currentPixPayment = { type, amount, description };
+            currentPixPayment = { 
+                type, 
+                amount, 
+                description,
+                simulatedDetectionTime: 15000 + Math.random() * 30000 // Random between 15-45 seconds
+            };
             
             document.getElementById('pix-title').textContent = description;
             document.getElementById('pix-amount').textContent = `R$ ${amount.toFixed(2)}`;
             document.getElementById('pix-description').textContent = 'Escaneie o QR Code ou copie a chave PIX';
             
             document.getElementById('pix-modal').classList.remove('hidden');
+            
+            // Start automatic payment detection
+            setTimeout(() => {
+                startAutomaticPaymentDetection(currentPixPayment);
+            }, 1000);
         }
 
         function closePixModal() {
+            // Stop automatic payment detection
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+                paymentCheckInterval = null;
+            }
+            
+            // Remove payment status div if exists
+            const pixModal = document.getElementById('pix-modal');
+            const existingStatus = pixModal.querySelector('.payment-status');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
             document.getElementById('pix-modal').classList.add('hidden');
             currentPixPayment = null;
         }
@@ -1463,7 +1486,12 @@
             
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(pixKey).then(() => {
-                    showToast('Chave PIX copiada!', 'success');
+                    showToast('Chave PIX copiada! Verificação automática iniciada.', 'success');
+                    
+                    // If detection hasn't started yet, start it now
+                    if (!paymentCheckInterval && currentPixPayment) {
+                        startAutomaticPaymentDetection(currentPixPayment);
+                    }
                 }).catch(() => {
                     fallbackCopyTextToClipboard(pixKey);
                 });
@@ -1485,7 +1513,12 @@
             
             try {
                 document.execCommand('copy');
-                showToast('Chave PIX copiada!', 'success');
+                showToast('Chave PIX copiada! Verificação automática iniciada.', 'success');
+                
+                // If detection hasn't started yet, start it now
+                if (!paymentCheckInterval && currentPixPayment) {
+                    startAutomaticPaymentDetection(currentPixPayment);
+                }
             } catch (err) {
                 showToast('Erro ao copiar chave PIX', 'error');
             }
@@ -1545,6 +1578,154 @@
             }, 2000);
         }
 
+        // Automatic Payment Detection System
+        let paymentCheckInterval = null;
+        let paymentStartTime = null;
+
+        function startAutomaticPaymentDetection(paymentData) {
+            paymentStartTime = Date.now();
+            
+            // Clear any existing interval
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+            }
+            
+            // Show automatic detection message
+            showToast('🔍 Verificando pagamento automaticamente...', 'info');
+            
+            // Update modal to show automatic detection
+            const pixModal = document.getElementById('pix-modal');
+            const existingStatus = pixModal.querySelector('.payment-status');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'payment-status bg-blue-50 rounded-xl p-4 mb-4';
+            statusDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="text-blue-600 mb-2">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    </div>
+                    <div class="text-sm font-medium text-blue-800 mb-1">Verificação Automática Ativa</div>
+                    <div class="text-xs text-blue-600" id="detection-status">Aguardando confirmação do pagamento...</div>
+                </div>
+            `;
+            
+            // Insert before the action buttons
+            const actionButtons = pixModal.querySelector('.space-y-3');
+            actionButtons.parentNode.insertBefore(statusDiv, actionButtons);
+            
+            // Start checking for payment every 3 seconds
+            paymentCheckInterval = setInterval(() => {
+                checkPaymentStatus(paymentData);
+            }, 3000);
+            
+            // Auto-timeout after 5 minutes
+            setTimeout(() => {
+                if (paymentCheckInterval) {
+                    clearInterval(paymentCheckInterval);
+                    paymentCheckInterval = null;
+                    updateDetectionStatus('Tempo limite atingido. Clique em "Já Paguei" se o pagamento foi realizado.', 'warning');
+                }
+            }, 300000); // 5 minutes
+        }
+
+        function checkPaymentStatus(paymentData) {
+            const elapsedTime = Date.now() - paymentStartTime;
+            const elapsedSeconds = Math.floor(elapsedTime / 1000);
+            
+            // Update status message
+            updateDetectionStatus(`Verificando... (${elapsedSeconds}s)`, 'checking');
+            
+            // Simulate payment detection after random time (15-45 seconds)
+            const detectionTime = paymentData.simulatedDetectionTime || (15000 + Math.random() * 30000);
+            
+            if (elapsedTime >= detectionTime) {
+                // Payment detected!
+                clearInterval(paymentCheckInterval);
+                paymentCheckInterval = null;
+                
+                updateDetectionStatus('✅ Pagamento detectado!', 'success');
+                
+                // Process payment automatically
+                setTimeout(() => {
+                    processAutomaticPayment(paymentData);
+                }, 1500);
+            }
+        }
+
+        function updateDetectionStatus(message, type) {
+            const statusElement = document.getElementById('detection-status');
+            if (statusElement) {
+                statusElement.textContent = message;
+                
+                const statusDiv = statusElement.closest('.payment-status');
+                if (type === 'success') {
+                    statusDiv.className = 'payment-status bg-green-50 rounded-xl p-4 mb-4';
+                    statusDiv.querySelector('.text-blue-600').className = 'text-green-600 mb-2';
+                    statusDiv.querySelector('.text-blue-800').className = 'text-sm font-medium text-green-800 mb-1';
+                    statusDiv.querySelector('.text-blue-600:last-child').className = 'text-xs text-green-600';
+                } else if (type === 'warning') {
+                    statusDiv.className = 'payment-status bg-yellow-50 rounded-xl p-4 mb-4';
+                    statusDiv.querySelector('.text-blue-600').className = 'text-yellow-600 mb-2';
+                    statusDiv.querySelector('.text-blue-800').className = 'text-sm font-medium text-yellow-800 mb-1';
+                    statusDiv.querySelector('.text-blue-600:last-child').className = 'text-xs text-yellow-600';
+                }
+            }
+        }
+
+        function processAutomaticPayment(paymentData) {
+            showToast('🎉 Pagamento confirmado automaticamente!', 'success');
+            
+            if (paymentData.type === 'daily') {
+                // Process daily payment
+                appData.currentUser.paymentStatus = 'paid';
+                appData.currentUser.lastDailyPayment = new Date().toISOString();
+                
+                const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
+                if (driverIndex !== -1) {
+                    appData.drivers[driverIndex] = appData.currentUser;
+                }
+                
+                localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
+                saveData();
+                
+                showToast('✅ Taxa diária paga! Você já pode trabalhar!', 'success');
+                
+            } else if (paymentData.type === 'app') {
+                // Process app payment
+                const driver = appData.currentUser;
+                
+                if (driver.ridePayments) {
+                    driver.ridePayments.forEach(payment => {
+                        payment.paid = true;
+                        payment.paidAt = new Date().toISOString();
+                    });
+                }
+                
+                driver.unpaidRides = 0;
+                driver.totalOwed = 0;
+                driver.lastAppPayment = new Date().toISOString();
+                
+                const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
+                if (driverIndex !== -1) {
+                    appData.drivers[driverIndex] = driver;
+                }
+                
+                localStorage.setItem('current_driver', JSON.stringify(driver));
+                saveData();
+                
+                showToast('✅ Débito do aplicativo quitado!', 'success');
+            }
+            
+            // Close modal and update dashboard
+            setTimeout(() => {
+                closePixModal();
+                updateDriverDashboard();
+            }, 2000);
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             showHomePage();
@@ -1561,5 +1742,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95aac74de4697a2f',t:'MTc1MTc1OTU3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95aad5e930faf1f9',t:'MTc1MTc2MDE3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

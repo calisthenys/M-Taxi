@@ -825,7 +825,6 @@
                         <li>Escolha PIX → Pagar</li>
                         <li>Escaneie o QR Code ou cole a chave</li>
                         <li>Confirme o valor e pague</li>
-                        <li>Clique em "Já Paguei" abaixo</li>
                     </ol>
                 </div>
             </div>
@@ -1850,40 +1849,79 @@
         // Notification Functions
         let notificationAudio = null;
         let notificationInterval = null;
+        let audioContext = null;
+        let backgroundAlarmInterval = null;
 
         function initNotificationSound() {
-            // Create audio context for notification sound
-            if (typeof(Audio) !== "undefined") {
-                // Create a simple beep sound using Web Audio API
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                function createBeepSound() {
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.value = 800; // High pitch beep
-                    oscillator.type = 'sine';
-                    
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.5);
+            try {
+                // Initialize audio context if not exists
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 }
                 
-                return createBeepSound;
+                // Resume audio context if suspended (required for background play)
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                function createLoudAlarmSound() {
+                    const oscillator1 = audioContext.createOscillator();
+                    const oscillator2 = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    // Create two oscillators for a more complex alarm sound
+                    oscillator1.connect(gainNode);
+                    oscillator2.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    // High and low frequency alternating alarm
+                    oscillator1.frequency.value = 1000; // High pitch
+                    oscillator2.frequency.value = 600;  // Lower pitch
+                    oscillator1.type = 'square'; // More aggressive sound
+                    oscillator2.type = 'square';
+                    
+                    // Much louder volume (0.8 instead of 0.3)
+                    gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
+                    
+                    // Longer duration (2 seconds instead of 0.5)
+                    const duration = 2.0;
+                    
+                    // Create alternating pattern
+                    oscillator1.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    oscillator1.frequency.setValueAtTime(800, audioContext.currentTime + 0.3);
+                    oscillator1.frequency.setValueAtTime(1000, audioContext.currentTime + 0.6);
+                    oscillator1.frequency.setValueAtTime(800, audioContext.currentTime + 0.9);
+                    oscillator1.frequency.setValueAtTime(1000, audioContext.currentTime + 1.2);
+                    oscillator1.frequency.setValueAtTime(800, audioContext.currentTime + 1.5);
+                    
+                    oscillator2.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator2.frequency.setValueAtTime(500, audioContext.currentTime + 0.3);
+                    oscillator2.frequency.setValueAtTime(600, audioContext.currentTime + 0.6);
+                    oscillator2.frequency.setValueAtTime(500, audioContext.currentTime + 0.9);
+                    oscillator2.frequency.setValueAtTime(600, audioContext.currentTime + 1.2);
+                    oscillator2.frequency.setValueAtTime(500, audioContext.currentTime + 1.5);
+                    
+                    // Fade out at the end
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                    
+                    oscillator1.start(audioContext.currentTime);
+                    oscillator2.start(audioContext.currentTime);
+                    oscillator1.stop(audioContext.currentTime + duration);
+                    oscillator2.stop(audioContext.currentTime + duration);
+                }
+                
+                return createLoudAlarmSound;
+            } catch (error) {
+                console.log('Could not initialize audio:', error);
+                return null;
             }
-            return null;
         }
 
         function playNotificationSound() {
             try {
-                const beepSound = initNotificationSound();
-                if (beepSound) {
-                    beepSound();
+                const alarmSound = initNotificationSound();
+                if (alarmSound) {
+                    alarmSound();
                 }
             } catch (error) {
                 console.log('Could not play notification sound:', error);
@@ -1894,21 +1932,61 @@
             if (notificationInterval) {
                 clearInterval(notificationInterval);
             }
+            if (backgroundAlarmInterval) {
+                clearInterval(backgroundAlarmInterval);
+            }
             
-            // Play sound every 2 seconds for 10 seconds
+            // Play sound every 3 seconds for 30 seconds (much longer)
             let playCount = 0;
+            const maxPlays = 10; // 30 seconds total
+            
             notificationInterval = setInterval(() => {
                 playNotificationSound();
                 playCount++;
                 
-                if (playCount >= 5) { // Stop after 5 beeps (10 seconds)
+                if (playCount >= maxPlays) {
                     clearInterval(notificationInterval);
                     notificationInterval = null;
                 }
-            }, 2000);
+            }, 3000);
             
-            // Play first beep immediately
+            // Play first alarm immediately
             playNotificationSound();
+            
+            // Background alarm - continues even when tab is not active
+            startBackgroundAlarm();
+        }
+
+        function startBackgroundAlarm() {
+            // Use a separate interval for background notifications
+            let backgroundPlayCount = 0;
+            const maxBackgroundPlays = 15; // 45 seconds total
+            
+            backgroundAlarmInterval = setInterval(() => {
+                // Force audio context resume for background play
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        playNotificationSound();
+                    });
+                } else {
+                    playNotificationSound();
+                }
+                
+                // Also trigger browser notification
+                showVisualNotification('🚨 NOVA CORRIDA DISPONÍVEL! Toque para ver detalhes.');
+                
+                // Vibrate if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate([300, 200, 300, 200, 300]);
+                }
+                
+                backgroundPlayCount++;
+                
+                if (backgroundPlayCount >= maxBackgroundPlays) {
+                    clearInterval(backgroundAlarmInterval);
+                    backgroundAlarmInterval = null;
+                }
+            }, 3000);
         }
 
         function stopNotificationAlarm() {
@@ -1916,7 +1994,29 @@
                 clearInterval(notificationInterval);
                 notificationInterval = null;
             }
+            if (backgroundAlarmInterval) {
+                clearInterval(backgroundAlarmInterval);
+                backgroundAlarmInterval = null;
+            }
         }
+
+        // Keep audio context active for background play
+        function keepAudioContextActive() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Resume audio context when page becomes visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                keepAudioContextActive();
+            }
+        });
+
+        // Resume audio context on user interaction
+        document.addEventListener('click', keepAudioContextActive);
+        document.addEventListener('touchstart', keepAudioContextActive);
 
         function showVisualNotification(message) {
             // Request permission for browser notifications
@@ -2620,5 +2720,5 @@
             });
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95abf0ab730af197',t:'MTc1MTc3MTc1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95ac0225e38bf18e',t:'MTc1MTc3MjQ2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

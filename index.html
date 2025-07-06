@@ -7,6 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Táxi Tapauá</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -51,8 +57,8 @@
     <!-- Toast Container -->
     <div id="toast-container"></div>
 
-    <!-- Home Page -->
-    <div id="home-page" class="min-h-screen flex flex-col">
+    <!-- Login Page -->
+    <div id="login-page" class="min-h-screen flex flex-col">
         <!-- Header -->
         <div class="gradient-bg text-taxi-dark p-6 shadow-taxi">
             <div class="max-w-md mx-auto text-center">
@@ -66,6 +72,107 @@
                         <h1 class="text-3xl font-bold">Táxi Tapauá</h1>
                         <p class="text-taxi-dark opacity-80">Seu transporte confiável</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex items-center justify-center p-6">
+            <div class="max-w-sm w-full space-y-4">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Bem-vindo!</h2>
+                    <p class="text-gray-600">Como você deseja usar o aplicativo?</p>
+                </div>
+                
+                <button onclick="showPassengerLogin()" class="w-full bg-taxi-dark hover:bg-taxi-gray text-taxi-yellow font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-2xl mr-3">👤</span>
+                        Sou Passageiro
+                    </div>
+                </button>
+                
+                <button onclick="showDriverInterface()" class="w-full bg-taxi-yellow hover:bg-yellow-400 text-taxi-dark font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-2xl mr-3">👨‍💼</span>
+                        Sou Motorista
+                    </div>
+                </button>
+                
+                <button onclick="showAdminLogin()" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-xl transition duration-200">
+                    <div class="flex items-center justify-center">
+                        <span class="text-xl mr-2">🛡️</span>
+                        Administração
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passenger Login -->
+    <div id="passenger-login" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-4 shadow-taxi">
+            <div class="flex items-center">
+                <button onclick="showLoginPage()" class="mr-4 p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h2 class="text-xl font-bold">Login do Passageiro</h2>
+            </div>
+        </div>
+
+        <div class="p-6 max-w-md mx-auto">
+            <!-- Login Form -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-taxi-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">👤</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Entre ou Cadastre-se</h3>
+                    <p class="text-gray-600 text-sm">Informe seus dados para continuar</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <input type="text" id="passenger-name" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Seu nome completo">
+                    <input type="tel" id="passenger-phone" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Seu telefone (11) 99999-9999">
+                </div>
+                
+                <button onclick="loginPassenger()" class="w-full gradient-bg text-taxi-dark font-bold py-4 px-6 rounded-xl mt-6 transition duration-200 transform hover:scale-105 shadow-lg">
+                    Entrar
+                </button>
+                
+                <div class="text-center mt-4">
+                    <p class="text-xs text-gray-500">
+                        Ao continuar, você concorda com nossos termos de uso
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="home-page" class="hidden min-h-screen flex flex-col">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-6 shadow-taxi">
+            <div class="max-w-md mx-auto">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="bg-taxi-dark text-taxi-yellow p-2 rounded-full mr-3">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold">Táxi Tapauá</h1>
+                            <p class="text-sm opacity-80" id="welcome-message">Olá!</p>
+                        </div>
+                    </div>
+                    <button onclick="logoutPassenger()" class="p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -87,17 +194,24 @@
                     </div>
                 </button>
                 
-                <button onclick="showDriverInterface()" class="w-full bg-taxi-yellow hover:bg-yellow-400 text-taxi-dark font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                <!-- Divider -->
+                <div class="flex items-center my-6">
+                    <div class="flex-1 border-t border-gray-300"></div>
+                    <span class="px-4 text-gray-500 text-sm">Painéis de Controle</span>
+                    <div class="flex-1 border-t border-gray-300"></div>
+                </div>
+                
+                <button onclick="showDriverInterface()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
                     <div class="flex items-center justify-center">
-                        <span class="text-2xl mr-3">👨‍💼</span>
-                        Sou Motorista
+                        <span class="text-xl mr-3">👨‍💼</span>
+                        Painel dos Motoristas
                     </div>
                 </button>
                 
-                <button onclick="showAdminLogin()" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-xl transition duration-200">
+                <button onclick="showAdminLogin()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
                     <div class="flex items-center justify-center">
-                        <span class="text-xl mr-2">🛡️</span>
-                        Administração
+                        <span class="text-xl mr-3">🛡️</span>
+                        Painel Administrativo
                     </div>
                 </button>
             </div>
@@ -393,41 +507,10 @@
                 </div>
             </div>
 
-            <!-- Passenger Information -->
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-                <h3 class="font-bold text-lg mb-4 flex items-center">
-                    <span class="text-2xl mr-2">👤</span>
-                    Informações do Passageiro
-                </h3>
-                
-                <div class="bg-blue-50 rounded-xl p-4">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <span class="text-2xl">👤</span>
-                        </div>
-                        <div class="font-bold text-lg text-blue-800" id="passenger-name">Passageiro</div>
-                        <div class="text-sm text-blue-600" id="passenger-phone">Aguardando no local</div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Action Buttons -->
             <div class="space-y-4">
-                <!-- Contact Buttons -->
-                <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h3 class="font-bold text-lg mb-4 text-center">Contatar Passageiro</h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="callPassenger()" class="bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-xl font-bold transition duration-200 flex items-center justify-center">
-                            <span class="text-xl mr-2">📞</span>
-                            Ligar
-                        </button>
-                        <button onclick="messagePassenger()" class="bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-xl font-bold transition duration-200 flex items-center justify-center">
-                            <span class="text-xl mr-2">💬</span>
-                            WhatsApp
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Trip Control Buttons -->
                 <div class="space-y-3">
                     <!-- Pickup Button -->
@@ -720,18 +803,88 @@
     </div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAJk8-W80iJyGHoJBeNZDo5k9wmh8HRPrQ",
+            authDomain: "mototaxi-tapaua.firebaseapp.com",
+            databaseURL: "https://mototaxi-tapaua-default-rtdb.firebaseio.com",
+            projectId: "mototaxi-tapaua",
+            storageBucket: "mototaxi-tapaua.firebasestorage.app",
+            messagingSenderId: "629986832248",
+            appId: "1:629986832248:web:fd044f24cc51aa018ba28d",
+            measurementId: "G-1S6PYNHWN5"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
         // Global variables
         let appData = {
-            drivers: JSON.parse(localStorage.getItem('taxi_drivers') || '[]'),
-            rides: JSON.parse(localStorage.getItem('taxi_rides') || '[]'),
+            drivers: [],
+            rides: [],
             currentUser: null,
             adminPassword: '@Zxcasdqwe123'
         };
 
-        // Utility Functions
+        // Firebase Data Functions
+        function saveDriverData(driver) {
+            return database.ref('drivers/' + driver.id).set(driver);
+        }
+
+        function saveRideData(ride) {
+            return database.ref('rides/' + ride.id).set(ride);
+        }
+
+        function loadDrivers() {
+            return database.ref('drivers').once('value').then(snapshot => {
+                const drivers = [];
+                snapshot.forEach(child => {
+                    drivers.push(child.val());
+                });
+                appData.drivers = drivers;
+                return drivers;
+            });
+        }
+
+        function loadRides() {
+            return database.ref('rides').once('value').then(snapshot => {
+                const rides = [];
+                snapshot.forEach(child => {
+                    rides.push(child.val());
+                });
+                appData.rides = rides;
+                return rides;
+            });
+        }
+
+        function listenToRides(callback) {
+            database.ref('rides').on('value', snapshot => {
+                const rides = [];
+                snapshot.forEach(child => {
+                    rides.push(child.val());
+                });
+                appData.rides = rides;
+                if (callback) callback(rides);
+            });
+        }
+
+        function listenToDrivers(callback) {
+            database.ref('drivers').on('value', snapshot => {
+                const drivers = [];
+                snapshot.forEach(child => {
+                    drivers.push(child.val());
+                });
+                appData.drivers = drivers;
+                if (callback) callback(drivers);
+            });
+        }
+
+        // Legacy function for compatibility
         function saveData() {
-            localStorage.setItem('taxi_drivers', JSON.stringify(appData.drivers));
-            localStorage.setItem('taxi_rides', JSON.stringify(appData.rides));
+            // This function is now handled by individual save functions
+            console.log('Data saved to Firebase');
         }
 
         function showToast(message, type = 'info') {
@@ -754,12 +907,29 @@
         }
 
         // Navigation Functions
+        function showLoginPage() {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('login-page').classList.remove('hidden');
+        }
+
+        function showPassengerLogin() {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('passenger-login').classList.remove('hidden');
+        }
+
         function showHomePage() {
             document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
             document.getElementById('home-page').classList.remove('hidden');
         }
 
         function showPassengerInterface(type = 'mototaxi') {
+            // Check if passenger is logged in
+            if (!appData.currentPassenger) {
+                showToast('Faça login primeiro', 'error');
+                showPassengerLogin();
+                return;
+            }
+            
             document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
             document.getElementById('passenger-page').classList.remove('hidden');
             
@@ -797,6 +967,52 @@
         }
 
         // Passenger Functions
+        function loginPassenger() {
+            const name = document.getElementById('passenger-name').value.trim();
+            const phone = document.getElementById('passenger-phone').value.trim();
+            
+            if (!name || !phone) {
+                showToast('Por favor, preencha nome e telefone', 'error');
+                return;
+            }
+            
+            if (phone.length < 10) {
+                showToast('Por favor, informe um telefone válido', 'error');
+                return;
+            }
+            
+            // Save passenger data
+            const passenger = {
+                id: generateId(),
+                name: name,
+                phone: phone,
+                loginAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('current_passenger', JSON.stringify(passenger));
+            appData.currentPassenger = passenger;
+            
+            // Update welcome message
+            document.getElementById('welcome-message').textContent = `Olá, ${name.split(' ')[0]}!`;
+            
+            showToast(`Bem-vindo, ${name.split(' ')[0]}!`, 'success');
+            showHomePage();
+        }
+
+        function logoutPassenger() {
+            if (confirm('Deseja sair do aplicativo?')) {
+                localStorage.removeItem('current_passenger');
+                appData.currentPassenger = null;
+                
+                // Clear form
+                document.getElementById('passenger-name').value = '';
+                document.getElementById('passenger-phone').value = '';
+                
+                showToast('Logout realizado com sucesso!', 'success');
+                showLoginPage();
+            }
+        }
+
         function requestRide() {
             const origin = document.getElementById('origin-input').value;
             const destination = document.getElementById('destination-input').value;
@@ -816,22 +1032,29 @@
                 price: price,
                 type: rideType,
                 status: 'searching',
-                passengerId: 'passenger_' + Date.now(),
+                passengerId: appData.currentPassenger ? appData.currentPassenger.id : 'passenger_' + Date.now(),
+                passengerName: appData.currentPassenger ? appData.currentPassenger.name : 'Passageiro',
+                passengerPhone: appData.currentPassenger ? appData.currentPassenger.phone : '',
                 driverId: null,
                 createdAt: new Date().toISOString()
             };
             
-            appData.rides.push(ride);
-            window.currentRideId = ride.id;
-            saveData();
-            
-            // Navigate to waiting screen
-            showWaitingScreen(ride);
-            
-            const serviceType = rideType === 'frete' ? 'carro frete' : 'mototáxi';
-            showToast(`Corrida solicitada! Procurando ${serviceType}...`, 'success');
-            
-            startCheckingForDriver(ride.id);
+            // Save to Firebase
+            saveRideData(ride).then(() => {
+                appData.rides.push(ride);
+                window.currentRideId = ride.id;
+                
+                // Navigate to waiting screen
+                showWaitingScreen(ride);
+                
+                const serviceType = rideType === 'frete' ? 'carro frete' : 'mototáxi';
+                showToast(`Corrida solicitada! Procurando ${serviceType}...`, 'success');
+                
+                startCheckingForDriver(ride.id);
+            }).catch(error => {
+                console.error('Erro ao salvar corrida:', error);
+                showToast('Erro ao solicitar corrida. Tente novamente.', 'error');
+            });
         }
 
         function showWaitingScreen(ride) {
@@ -988,27 +1211,40 @@
             const phone = document.getElementById('driver-phone').value;
             const vehicleColor = document.getElementById('vehicle-color').value;
             
+            if (!type || !name || !phone) {
+                showToast('Por favor, preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+            
             const driver = {
                 id: generateId(),
-                type: type || 'mototaxi',
-                name: name || 'Motorista',
+                type: type,
+                name: name,
                 cpf: cpf || 'Não informado',
-                phone: phone || 'Não informado',
+                phone: phone,
                 vehicleColor: vehicleColor || 'Não informado',
                 status: 'offline',
                 paymentStatus: 'pending',
                 dailyRides: 0,
                 dailyEarnings: 0,
+                unpaidRides: 0,
+                totalOwed: 0,
+                ridePayments: [],
                 registeredAt: new Date().toISOString()
             };
             
-            appData.drivers.push(driver);
-            appData.currentUser = driver;
-            localStorage.setItem('current_driver', JSON.stringify(driver));
-            saveData();
-            
-            showToast('Cadastro realizado com sucesso!', 'success');
-            showDriverDashboard();
+            // Save to Firebase
+            saveDriverData(driver).then(() => {
+                appData.drivers.push(driver);
+                appData.currentUser = driver;
+                localStorage.setItem('current_driver', JSON.stringify(driver));
+                
+                showToast('Cadastro realizado com sucesso!', 'success');
+                showDriverDashboard();
+            }).catch(error => {
+                console.error('Erro ao cadastrar motorista:', error);
+                showToast('Erro ao realizar cadastro. Tente novamente.', 'error');
+            });
         }
 
         function showDriverDashboard() {
@@ -1131,21 +1367,26 @@
             
             driver.status = driver.status === 'online' ? 'offline' : 'online';
             
-            const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
-            if (driverIndex !== -1) {
-                appData.drivers[driverIndex] = driver;
-            }
-            
-            appData.currentUser = driver;
-            localStorage.setItem('current_driver', JSON.stringify(driver));
-            saveData();
-            
-            showToast(`${driver.status === 'online' ? '✅ Começou a trabalhar!' : '⏸️ Parou de trabalhar'}`, 'success');
-            updateDriverDashboard();
-            
-            if (driver.status === 'online') {
-                startListeningForRides();
-            }
+            // Save to Firebase
+            saveDriverData(driver).then(() => {
+                const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
+                if (driverIndex !== -1) {
+                    appData.drivers[driverIndex] = driver;
+                }
+                
+                appData.currentUser = driver;
+                localStorage.setItem('current_driver', JSON.stringify(driver));
+                
+                showToast(`${driver.status === 'online' ? '✅ Começou a trabalhar!' : '⏸️ Parou de trabalhar'}`, 'success');
+                updateDriverDashboard();
+                
+                if (driver.status === 'online') {
+                    startListeningForRides();
+                }
+            }).catch(error => {
+                console.error('Erro ao atualizar status:', error);
+                showToast('Erro ao atualizar status. Tente novamente.', 'error');
+            });
         }
 
         function startListeningForRides() {
@@ -1233,18 +1474,25 @@
             
             ride.status = 'accepted';
             ride.driverId = appData.currentUser.id;
+            ride.driverName = appData.currentUser.name;
+            ride.driverPhone = appData.currentUser.phone;
             ride.acceptedAt = new Date().toISOString();
             
             // Store current ride for trip details
             window.currentAcceptedRide = ride;
             
-            saveData();
-            showToast('Corrida aceita! Redirecionando para detalhes...', 'success');
-            
-            // Navigate to trip details screen
-            setTimeout(() => {
-                showTripDetailsScreen(ride);
-            }, 1000);
+            // Save to Firebase
+            saveRideData(ride).then(() => {
+                showToast('Corrida aceita! Redirecionando para detalhes...', 'success');
+                
+                // Navigate to trip details screen
+                setTimeout(() => {
+                    showTripDetailsScreen(ride);
+                }, 1000);
+            }).catch(error => {
+                console.error('Erro ao aceitar corrida:', error);
+                showToast('Erro ao aceitar corrida. Tente novamente.', 'error');
+            });
         }
 
         function finishRide() {
@@ -1825,15 +2073,19 @@
                 appData.currentUser.paymentStatus = 'paid';
                 appData.currentUser.lastDailyPayment = new Date().toISOString();
                 
-                const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
-                if (driverIndex !== -1) {
-                    appData.drivers[driverIndex] = appData.currentUser;
-                }
-                
-                localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
-                saveData();
-                
-                showToast('✅ Taxa diária paga! Você já pode trabalhar!', 'success');
+                // Save to Firebase
+                saveDriverData(appData.currentUser).then(() => {
+                    const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
+                    if (driverIndex !== -1) {
+                        appData.drivers[driverIndex] = appData.currentUser;
+                    }
+                    
+                    localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
+                    showToast('✅ Taxa diária paga! Você já pode trabalhar!', 'success');
+                }).catch(error => {
+                    console.error('Erro ao processar pagamento:', error);
+                    showToast('Erro ao processar pagamento. Tente novamente.', 'error');
+                });
                 
             } else if (paymentData.type === 'app') {
                 // Process app payment
@@ -1850,15 +2102,19 @@
                 driver.totalOwed = 0;
                 driver.lastAppPayment = new Date().toISOString();
                 
-                const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
-                if (driverIndex !== -1) {
-                    appData.drivers[driverIndex] = driver;
-                }
-                
-                localStorage.setItem('current_driver', JSON.stringify(driver));
-                saveData();
-                
-                showToast('✅ Débito do aplicativo quitado!', 'success');
+                // Save to Firebase
+                saveDriverData(driver).then(() => {
+                    const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
+                    if (driverIndex !== -1) {
+                        appData.drivers[driverIndex] = driver;
+                    }
+                    
+                    localStorage.setItem('current_driver', JSON.stringify(driver));
+                    showToast('✅ Débito do aplicativo quitado!', 'success');
+                }).catch(error => {
+                    console.error('Erro ao processar pagamento:', error);
+                    showToast('Erro ao processar pagamento. Tente novamente.', 'error');
+                });
             }
             
             // Close modal and update dashboard
@@ -2009,20 +2265,28 @@
                 paid: false
             });
             
-            const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
-            if (driverIndex !== -1) {
-                appData.drivers[driverIndex] = appData.currentUser;
-            }
-            
-            localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
-            saveData();
-            
-            showToast('Corrida finalizada! R$ 1,00 adicionado à sua conta do app.', 'success');
-            
-            // Return to dashboard after 3 seconds
-            setTimeout(() => {
-                backToDriverDashboard();
-            }, 3000);
+            // Save both ride and driver data to Firebase
+            Promise.all([
+                saveRideData(ride),
+                saveDriverData(appData.currentUser)
+            ]).then(() => {
+                const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
+                if (driverIndex !== -1) {
+                    appData.drivers[driverIndex] = appData.currentUser;
+                }
+                
+                localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
+                
+                showToast('Corrida finalizada! R$ 1,00 adicionado à sua conta do app.', 'success');
+                
+                // Return to dashboard immediately
+                setTimeout(() => {
+                    backToDriverDashboard();
+                }, 1500);
+            }).catch(error => {
+                console.error('Erro ao finalizar corrida:', error);
+                showToast('Erro ao finalizar corrida. Tente novamente.', 'error');
+            });
         }
 
         function cancelTripFromDetails() {
@@ -2058,7 +2322,52 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            showHomePage();
+            // Initialize Firebase listeners
+            initializeFirebaseListeners();
+            
+            // Load initial data from Firebase
+            Promise.all([loadDrivers(), loadRides()]).then(() => {
+                console.log('Dados carregados do Firebase');
+                
+                // Check if passenger is already logged in
+                const savedPassenger = localStorage.getItem('current_passenger');
+                if (savedPassenger) {
+                    appData.currentPassenger = JSON.parse(savedPassenger);
+                    document.getElementById('welcome-message').textContent = `Olá, ${appData.currentPassenger.name.split(' ')[0]}!`;
+                    showHomePage();
+                } else {
+                    showLoginPage();
+                }
+                
+                // Check if driver is already logged in
+                const savedDriver = localStorage.getItem('current_driver');
+                if (savedDriver) {
+                    const driverData = JSON.parse(savedDriver);
+                    // Find updated driver data from Firebase
+                    const updatedDriver = appData.drivers.find(d => d.id === driverData.id);
+                    if (updatedDriver) {
+                        appData.currentUser = updatedDriver;
+                        localStorage.setItem('current_driver', JSON.stringify(updatedDriver));
+                    }
+                }
+            }).catch(error => {
+                console.error('Erro ao carregar dados:', error);
+                showToast('Erro ao conectar com o servidor. Alguns recursos podem não funcionar.', 'error');
+                
+                // Fallback to localStorage if Firebase fails
+                appData.drivers = JSON.parse(localStorage.getItem('taxi_drivers') || '[]');
+                appData.rides = JSON.parse(localStorage.getItem('taxi_rides') || '[]');
+                
+                // Check if passenger is already logged in
+                const savedPassenger = localStorage.getItem('current_passenger');
+                if (savedPassenger) {
+                    appData.currentPassenger = JSON.parse(savedPassenger);
+                    document.getElementById('welcome-message').textContent = `Olá, ${appData.currentPassenger.name.split(' ')[0]}!`;
+                    showHomePage();
+                } else {
+                    showLoginPage();
+                }
+            });
             
             // Request notification permission on load
             requestNotificationPermission();
@@ -2070,7 +2379,46 @@
                     e.target.value = formatCPF(e.target.value);
                 });
             }
+            
+            // Add phone formatting for passenger
+            const passengerPhoneInput = document.getElementById('passenger-phone');
+            if (passengerPhoneInput) {
+                passengerPhoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length <= 11) {
+                        value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                        value = value.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
+                    }
+                    e.target.value = value;
+                });
+            }
         });
+
+        // Initialize Firebase real-time listeners
+        function initializeFirebaseListeners() {
+            // Listen to rides changes
+            listenToRides((rides) => {
+                // Update available rides for drivers
+                if (appData.currentUser && appData.currentUser.status === 'online') {
+                    updateAvailableRides();
+                }
+                
+                // Check for ride status changes for passengers
+                if (window.currentRideId) {
+                    const currentRide = rides.find(r => r.id === window.currentRideId);
+                    if (currentRide && currentRide.status === 'accepted' && !document.getElementById('driver-found-card').classList.contains('hidden') === false) {
+                        showDriverFound(currentRide);
+                    }
+                }
+            });
+            
+            // Listen to drivers changes for admin dashboard
+            listenToDrivers((drivers) => {
+                if (document.getElementById('admin-dashboard').classList.contains('hidden') === false) {
+                    updateAdminDashboard();
+                }
+            });
+        }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95aaf32ae12cf200',t:'MTc1MTc2MTM2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95ab803fb0cb88b4',t:'MTc1MTc2NzE0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

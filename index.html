@@ -5,1421 +5,2882 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧱 Criador de Skins Minecraft</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            min-height: 100vh;
-            color: white;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Animated background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
-            animation: float 20s ease-in-out infinite;
-            z-index: -1;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-
-        .mobile-header {
-            position: sticky;
-            top: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(20px);
-            padding: 15px 20px;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .mobile-header h1 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            text-align: center;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .mobile-header .subtitle {
-            text-align: center;
-            font-size: 0.8rem;
-            opacity: 0.7;
-            margin-top: 5px;
-        }
-
-        .character-section {
-            padding: 30px 20px;
-            text-align: center;
-            background: rgba(255,255,255,0.05);
-            margin: 20px;
-            border-radius: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-
-        .minecraft-character {
-            width: 180px;
-            height: 270px;
-            margin: 0 auto 20px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.5s ease;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
-        }
-
-        .character-part {
-            position: absolute;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 3px;
-        }
-
-        .head {
-            width: 72px;
-            height: 72px;
-            top: 0;
-            left: 54px;
-            background: var(--skin-color, #FDBCB4);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-        }
-
-        .body {
-            width: 72px;
-            height: 108px;
-            top: 72px;
-            left: 54px;
-            background: var(--shirt-color, #4169E1);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-        }
-
-        .arm-left, .arm-right {
-            width: 36px;
-            height: 108px;
-            top: 72px;
-            background: var(--skin-color, #FDBCB4);
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
-        }
-
-        .arm-left { left: 18px; }
-        .arm-right { right: 18px; }
-
-        .leg-left, .leg-right {
-            width: 36px;
-            height: 108px;
-            top: 180px;
-            background: var(--pants-color, #000080);
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
-        }
-
-        .leg-left { left: 40px; }
-        .leg-right { left: 68px; }
-
-        .eyes {
-            position: absolute;
-            top: 22px;
-            left: 18px;
-            width: 36px;
-            height: 12px;
-            background: var(--eye-color, #000);
-            border-radius: 2px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-
-        .hair {
-            position: absolute;
-            top: -4px;
-            left: -4px;
-            width: 80px;
-            height: 36px;
-            background: var(--hair-color, #8B4513);
-            border-radius: 8px 8px 0 0;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-
-        .accessory {
-            position: absolute;
-            top: 54px;
-            left: 9px;
-            width: 90px;
-            height: 27px;
-            background: var(--accessory-color, transparent);
-            border-radius: 5px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.2);
-        }
-
-        .gesture-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .gesture-btn {
-            width: 60px;
-            height: 60px;
-            border: 2px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .gesture-btn:active {
-            transform: scale(0.95);
-            background: rgba(255,255,255,0.2);
-        }
-
-        .quick-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 20px;
-        }
-
-        .action-btn {
-            padding: 18px;
-            border: none;
-            border-radius: 20px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .action-btn:active::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #43e97b, #38f9d7);
-        }
-
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-
-        .customization-tabs {
-            display: flex;
-            overflow-x: auto;
-            padding: 0 20px 10px;
-            gap: 10px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .customization-tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .tab-btn {
-            min-width: 80px;
-            padding: 12px 16px;
-            border: none;
-            border-radius: 25px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            white-space: nowrap;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .customization-panel {
-            padding: 20px;
-            min-height: 200px;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-            gap: 15px;
-            max-width: 100%;
-        }
-
-        .option-btn {
-            width: 70px;
-            height: 70px;
-            border: 3px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .option-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            transform: translate(-50%, -50%);
-        }
-
-        .option-btn:active::before {
-            width: 100px;
-            height: 100px;
-        }
-
-        .option-btn.active {
-            border-color: #4facfe;
-            background: rgba(79, 172, 254, 0.2);
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
-        }
-
-        .stats-section {
-            margin: 20px;
-            padding: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
-        }
-
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #4facfe;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-
-        .saved-skins-section {
-            margin: 20px;
-            padding: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .skins-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 15px;
-            padding: 15px 0;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .skins-scroll::-webkit-scrollbar {
-            display: none;
-        }
-
-        .skin-preview {
-            min-width: 80px;
-            height: 80px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            border: 2px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .skin-preview:active {
-            transform: scale(0.95);
-        }
-
-        .skin-preview.active {
-            border-color: #4facfe;
-            box-shadow: 0 0 15px rgba(79, 172, 254, 0.5);
-        }
-
-        .floating-tip {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(20px);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.2);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .floating-tip.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .tip-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tip-icon {
-            font-size: 1.5rem;
-        }
-
-        .tip-text {
-            flex: 1;
-            font-size: 0.9rem;
-        }
-
-        .tip-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        /* Haptic feedback simulation */
-        @keyframes haptic {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .haptic {
-            animation: haptic 0.1s ease;
-        }
-
-        /* Loading animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .minecraft-character {
-                width: 150px;
-                height: 225px;
-            }
-            
-            .head { width: 60px; height: 60px; left: 45px; }
-            .body { width: 60px; height: 90px; top: 60px; left: 45px; }
-            .arm-left, .arm-right { width: 30px; height: 90px; top: 60px; }
-            .arm-left { left: 15px; }
-            .arm-right { right: 15px; }
-            .leg-left, .leg-right { width: 30px; height: 90px; top: 150px; }
-            .leg-left { left: 35px; }
-            .leg-right { left: 55px; }
-            .hair { width: 68px; height: 30px; }
-            .eyes { width: 30px; height: 10px; left: 15px; top: 18px; }
-            .accessory { width: 75px; height: 22px; left: 7px; top: 45px; }
-        }
-
-        /* Dark mode enhancements */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: linear-gradient(135deg, #0a0a0a, #1a1a1a, #2a2a2a);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="mobile-header">
-        <h1>🧱 Criador de Skins Minecraft</h1>
-        <div class="subtitle">Crie personagens únicos com estilo!</div>
-    </div>
-
-    <div class="character-section">
-        <div class="minecraft-character" id="character">
-            <div class="character-part hair"></div>
-            <div class="character-part head">
-                <div class="eyes"></div>
-            </div>
-            <div class="character-part body"></div>
-            <div class="character-part arm-left"></div>
-            <div class="character-part arm-right"></div>
-            <div class="character-part leg-left"></div>
-            <div class="character-part leg-right"></div>
-            <div class="character-part accessory"></div>
-        </div>
-        
-        <div class="gesture-controls">
-            <button class="gesture-btn" onclick="rotateCharacter(-30)">⬅️</button>
-            <button class="gesture-btn" onclick="autoRotate()">🔄</button>
-            <button class="gesture-btn" onclick="rotateCharacter(30)">➡️</button>
-        </div>
-    </div>
-
-    <div class="quick-actions">
-        <button class="action-btn btn-primary" onclick="randomizeSkin()">
-            <span>🎲</span> Surpresa!
-        </button>
-        <button class="action-btn btn-secondary" onclick="saveSkin()">
-            <span>💾</span> Salvar
-        </button>
-        <button class="action-btn btn-success" onclick="downloadSkin()">
-            <span>⬇️</span> Baixar
-        </button>
-        <button class="action-btn btn-warning" onclick="resetSkin()">
-            <span>🔄</span> Reset
-        </button>
-    </div>
-
-    <div class="customization-tabs">
-        <button class="tab-btn active" onclick="showTab('skin')">🎨 Pele</button>
-        <button class="tab-btn" onclick="showTab('hair')">💇 Cabelo</button>
-        <button class="tab-btn" onclick="showTab('eyes')">👀 Olhos</button>
-        <button class="tab-btn" onclick="showTab('shirt')">👕 Camisa</button>
-        <button class="tab-btn" onclick="showTab('pants')">👖 Calça</button>
-        <button class="tab-btn" onclick="showTab('accessory')">🎒 Extra</button>
-    </div>
-
-    <div class="customization-panel">
-        <div id="skin-options" class="options-grid">
-            <div class="option-btn active" data-category="skin" data-value="#FDBCB4" style="background: #FDBCB4;"></div>
-            <div class="option-btn" data-category="skin" data-value="#F1C27D" style="background: #F1C27D;"></div>
-            <div class="option-btn" data-category="skin" data-value="#E0AC69" style="background: #E0AC69;"></div>
-            <div class="option-btn" data-category="skin" data-value="#C68642" style="background: #C68642;"></div>
-            <div class="option-btn" data-category="skin" data-value="#8D5524" style="background: #8D5524;"></div>
-            <div class="option-btn" data-category="skin" data-value="#654321" style="background: #654321;"></div>
-        </div>
-
-        <div id="hair-options" class="options-grid" style="display: none;">
-            <div class="option-btn active" data-category="hair" data-value="#8B4513">🟤</div>
-            <div class="option-btn" data-category="hair" data-value="#FFD700">🟡</div>
-            <div class="option-btn" data-category="hair" data-value="#000000">⚫</div>
-            <div class="option-btn" data-category="hair" data-value="#FF4500">🟠</div>
-            <div class="option-btn" data-category="hair" data-value="#8A2BE2">🟣</div>
-            <div class="option-btn" data-category="hair" data-value="#FF69B4">🩷</div>
-            <div class="option-btn" data-category="hair" data-value="#00CED1">🩵</div>
-            <div class="option-btn" data-category="hair" data-value="transparent">🚫</div>
-        </div>
-
-        <div id="eyes-options" class="options-grid" style="display: none;">
-            <div class="option-btn active" data-category="eyes" data-value="#000000">⚫</div>
-            <div class="option-btn" data-category="eyes" data-value="#0066CC">🔵</div>
-            <div class="option-btn" data-category="eyes" data-value="#228B22">🟢</div>
-            <div class="option-btn" data-category="eyes" data-value="#8B4513">🟤</div>
-            <div class="option-btn" data-category="eyes" data-value="#FF1493">🩷</div>
-            <div class="option-btn" data-category="eyes" data-value="#9400D3">🟣</div>
-        </div>
-
-        <div id="shirt-options" class="options-grid" style="display: none;">
-            <div class="option-btn active" data-category="shirt" data-value="#4169E1">🔵</div>
-            <div class="option-btn" data-category="shirt" data-value="#FF0000">🔴</div>
-            <div class="option-btn" data-category="shirt" data-value="#32CD32">🟢</div>
-            <div class="option-btn" data-category="shirt" data-value="#FFD700">🟡</div>
-            <div class="option-btn" data-category="shirt" data-value="#800080">🟣</div>
-            <div class="option-btn" data-category="shirt" data-value="#000000">⚫</div>
-            <div class="option-btn" data-category="shirt" data-value="#FF69B4">🩷</div>
-            <div class="option-btn" data-category="shirt" data-value="#00CED1">🩵</div>
-        </div>
-
-        <div id="pants-options" class="options-grid" style="display: none;">
-            <div class="option-btn active" data-category="pants" data-value="#000080">🔵</div>
-            <div class="option-btn" data-category="pants" data-value="#000000">⚫</div>
-            <div class="option-btn" data-category="pants" data-value="#8B4513">🟤</div>
-            <div class="option-btn" data-category="pants" data-value="#228B22">🟢</div>
-            <div class="option-btn" data-category="pants" data-value="#800080">🟣</div>
-            <div class="option-btn" data-category="pants" data-value="#DC143C">🔴</div>
-        </div>
-
-        <div id="accessory-options" class="options-grid" style="display: none;">
-            <div class="option-btn active" data-category="accessory" data-value="transparent">🚫</div>
-            <div class="option-btn" data-category="accessory" data-value="#FF0000">🎒</div>
-            <div class="option-btn" data-category="accessory" data-value="#FFD700">👑</div>
-            <div class="option-btn" data-category="accessory" data-value="#C0C0C0">⚔️</div>
-            <div class="option-btn" data-category="accessory" data-value="#8B4513">🛡️</div>
-            <div class="option-btn" data-category="accessory" data-value="#4B0082">🧙</div>
-        </div>
-    </div>
-
-    <div class="stats-section">
-        <h3>📊 Suas Estatísticas</h3>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-number" id="skinCount">0</div>
-                <div class="stat-label">Skins Criadas</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="customCount">0</div>
-                <div class="stat-label">Personalizações</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="favoriteCount">6</div>
-                <div class="stat-label">Favoritas</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="saved-skins-section">
-        <h3>⚽ Times Brasileiros</h3>
-        <div class="skins-scroll" id="footballTeamsContainer">
-            <div class="skin-preview" onclick="loadFootballTeam('flamengo')" title="Flamengo">🔴⚫</div>
-            <div class="skin-preview" onclick="loadFootballTeam('palmeiras')" title="Palmeiras">🟢⚪</div>
-            <div class="skin-preview" onclick="loadFootballTeam('corinthians')" title="Corinthians">⚫⚪</div>
-            <div class="skin-preview" onclick="loadFootballTeam('santos')" title="Santos">⚪⚫</div>
-            <div class="skin-preview" onclick="loadFootballTeam('saopaulo')" title="São Paulo">🔴⚪</div>
-            <div class="skin-preview" onclick="loadFootballTeam('vasco')" title="Vasco">⚫⚪</div>
-            <div class="skin-preview" onclick="loadFootballTeam('gremio')" title="Grêmio">🔵⚪</div>
-            <div class="skin-preview" onclick="loadFootballTeam('internacional')" title="Internacional">🔴⚪</div>
-        </div>
-    </div>
-
-    <div class="saved-skins-section">
-        <h3>🎮 Personagens de Games</h3>
-        <div class="skins-scroll" id="gameCharactersContainer">
-            <div class="skin-preview" onclick="loadGameCharacter('mario')" title="Mario">🍄</div>
-            <div class="skin-preview" onclick="loadGameCharacter('luigi')" title="Luigi">🟢</div>
-            <div class="skin-preview" onclick="loadGameCharacter('link')" title="Link">🗡️</div>
-            <div class="skin-preview" onclick="loadGameCharacter('sonic')" title="Sonic">💙</div>
-            <div class="skin-preview" onclick="loadGameCharacter('steve')" title="Steve">⛏️</div>
-            <div class="skin-preview" onclick="loadGameCharacter('alex')" title="Alex">👩</div>
-            <div class="skin-preview" onclick="loadGameCharacter('creeper')" title="Creeper">💚</div>
-            <div class="skin-preview" onclick="loadGameCharacter('enderman')" title="Enderman">⚫</div>
-        </div>
-    </div>
-
-    <div class="saved-skins-section">
-        <h3>💾 Suas Criações</h3>
-        <div class="skins-scroll" id="savedSkinsContainer">
-            <div class="skin-preview" onclick="loadPresetSkin('warrior')" title="Guerreiro">⚔️</div>
-            <div class="skin-preview" onclick="loadPresetSkin('mage')" title="Mago">🧙</div>
-            <div class="skin-preview" onclick="loadPresetSkin('ninja')" title="Ninja">🥷</div>
-            <div class="skin-preview" onclick="loadPresetSkin('knight')" title="Cavaleiro">🛡️</div>
-            <div class="skin-preview" onclick="loadPresetSkin('archer')" title="Arqueiro">🏹</div>
-            <div class="skin-preview" onclick="loadPresetSkin('pirate')" title="Pirata">🏴‍☠️</div>
-        </div>
-    </div>
-
-    <div class="floating-tip" id="floatingTip">
-        <div class="tip-content">
-            <div class="tip-icon">💡</div>
-            <div class="tip-text">Dica: Toque e segure nos botões para ver mais opções!</div>
-            <button class="tip-close" onclick="hideTip()">✕</button>
-        </div>
-    </div>
-
+    <title>Táxi Tapauá</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
     <script>
-        let currentRotation = 0;
-        let customizationCount = 0;
-        let skinCount = 0;
-        let savedSkins = [];
-        let autoRotateInterval;
-        let currentTab = 'skin';
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            showTip();
-            setupTouchEvents();
-            loadSavedData();
-        });
-
-        // Tab switching
-        function showTab(tabName) {
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
-            // Hide all option grids
-            document.querySelectorAll('.options-grid').forEach(grid => {
-                grid.style.display = 'none';
-            });
-
-            // Show selected grid
-            document.getElementById(tabName + '-options').style.display = 'grid';
-            currentTab = tabName;
-
-            // Haptic feedback
-            triggerHaptic(event.target);
-        }
-
-        // Character customization with enhanced mobile interactions
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('option-btn')) {
-                const category = e.target.dataset.category;
-                const value = e.target.dataset.value;
-                
-                // Remove active class from siblings
-                e.target.parentElement.querySelectorAll('.option-btn').forEach(sibling => {
-                    sibling.classList.remove('active');
-                });
-                
-                // Add active class to clicked button
-                e.target.classList.add('active');
-                
-                // Apply customization
-                applyCustomization(category, value);
-                
-                customizationCount++;
-                document.getElementById('customCount').textContent = customizationCount;
-                
-                // Haptic feedback
-                triggerHaptic(e.target);
-                
-                // Save progress
-                saveProgress();
-            }
-        });
-
-        function applyCustomization(category, value) {
-            const character = document.getElementById('character');
-            
-            switch(category) {
-                case 'skin':
-                    character.style.setProperty('--skin-color', value);
-                    break;
-                case 'hair':
-                    character.style.setProperty('--hair-color', value);
-                    break;
-                case 'eyes':
-                    character.style.setProperty('--eye-color', value);
-                    break;
-                case 'shirt':
-                    character.style.setProperty('--shirt-color', value);
-                    break;
-                case 'pants':
-                    character.style.setProperty('--pants-color', value);
-                    break;
-                case 'accessory':
-                    character.style.setProperty('--accessory-color', value);
-                    break;
-            }
-        }
-
-        function rotateCharacter(degrees) {
-            currentRotation += degrees;
-            document.getElementById('character').style.transform = `rotateY(${currentRotation}deg)`;
-            triggerHaptic(event.target);
-        }
-
-        function autoRotate() {
-            if (autoRotateInterval) {
-                clearInterval(autoRotateInterval);
-                autoRotateInterval = null;
-                event.target.textContent = '🔄';
-            } else {
-                autoRotateInterval = setInterval(() => {
-                    currentRotation += 2;
-                    document.getElementById('character').style.transform = `rotateY(${currentRotation}deg)`;
-                }, 50);
-                event.target.textContent = '⏸️';
-            }
-            triggerHaptic(event.target);
-        }
-
-        function randomizeSkin() {
-            const button = event.target.closest('.action-btn');
-            button.innerHTML = '<span class="loading"></span> Criando...';
-            
-            setTimeout(() => {
-                const categories = ['skin', 'hair', 'eyes', 'shirt', 'pants', 'accessory'];
-                const colors = {
-                    skin: ['#FDBCB4', '#F1C27D', '#E0AC69', '#C68642', '#8D5524', '#654321'],
-                    hair: ['#8B4513', '#FFD700', '#000000', '#FF4500', '#8A2BE2', '#FF69B4', '#00CED1', 'transparent'],
-                    eyes: ['#000000', '#0066CC', '#228B22', '#8B4513', '#FF1493', '#9400D3'],
-                    shirt: ['#4169E1', '#FF0000', '#32CD32', '#FFD700', '#800080', '#000000', '#FF69B4', '#00CED1'],
-                    pants: ['#000080', '#000000', '#8B4513', '#228B22', '#800080', '#DC143C'],
-                    accessory: ['transparent', '#FF0000', '#FFD700', '#C0C0C0', '#8B4513', '#4B0082']
-                };
-
-                categories.forEach(category => {
-                    const colorOptions = colors[category];
-                    const randomColor = colorOptions[Math.floor(Math.random() * colorOptions.length)];
-                    applyCustomization(category, randomColor);
-                    
-                    // Update active buttons
-                    document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.value === randomColor) {
-                            btn.classList.add('active');
-                        }
-                    });
-                });
-
-                customizationCount += 6;
-                document.getElementById('customCount').textContent = customizationCount;
-                
-                button.innerHTML = '<span>🎲</span> Surpresa!';
-                triggerHaptic(button);
-                showToast('🎉 Skin aleatória criada!');
-            }, 1000);
-        }
-
-        function saveSkin() {
-            const button = event.target.closest('.action-btn');
-            button.innerHTML = '<span class="loading"></span> Salvando...';
-            
-            setTimeout(() => {
-                const currentSkin = {
-                    skin: getComputedStyle(document.getElementById('character')).getPropertyValue('--skin-color') || '#FDBCB4',
-                    hair: getComputedStyle(document.getElementById('character')).getPropertyValue('--hair-color') || '#8B4513',
-                    eyes: getComputedStyle(document.getElementById('character')).getPropertyValue('--eye-color') || '#000000',
-                    shirt: getComputedStyle(document.getElementById('character')).getPropertyValue('--shirt-color') || '#4169E1',
-                    pants: getComputedStyle(document.getElementById('character')).getPropertyValue('--pants-color') || '#000080',
-                    accessory: getComputedStyle(document.getElementById('character')).getPropertyValue('--accessory-color') || 'transparent',
-                    timestamp: Date.now()
-                };
-
-                savedSkins.push(currentSkin);
-                skinCount++;
-                document.getElementById('skinCount').textContent = skinCount;
-
-                // Create preview element
-                const preview = document.createElement('div');
-                preview.className = 'skin-preview';
-                preview.style.background = `linear-gradient(45deg, ${currentSkin.shirt}, ${currentSkin.pants})`;
-                preview.onclick = () => loadSavedSkin(savedSkins.length - 1);
-                preview.title = `Skin ${skinCount}`;
-                preview.textContent = '👤';
-
-                document.getElementById('savedSkinsContainer').appendChild(preview);
-
-                button.innerHTML = '<span>💾</span> Salvar';
-                triggerHaptic(button);
-                showToast('💾 Skin salva com sucesso!');
-                saveProgress();
-            }, 800);
-        }
-
-        function loadSavedSkin(index) {
-            const skin = savedSkins[index];
-            Object.keys(skin).forEach(category => {
-                if (category !== 'timestamp') {
-                    applyCustomization(category, skin[category]);
-                    
-                    // Update active buttons
-                    document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.value === skin[category]) {
-                            btn.classList.add('active');
-                        }
-                    });
-                }
-            });
-            showToast('✨ Skin carregada!');
-        }
-
-        function loadPresetSkin(type) {
-            const presets = {
-                warrior: {
-                    skin: '#E0AC69',
-                    hair: '#8B4513',
-                    eyes: '#8B4513',
-                    shirt: '#8B0000',
-                    pants: '#000000',
-                    accessory: '#C0C0C0'
-                },
-                mage: {
-                    skin: '#FDBCB4',
-                    hair: '#800080',
-                    eyes: '#0066CC',
-                    shirt: '#4B0082',
-                    pants: '#000080',
-                    accessory: '#FFD700'
-                },
-                ninja: {
-                    skin: '#F1C27D',
-                    hair: '#000000',
-                    eyes: '#000000',
-                    shirt: '#000000',
-                    pants: '#000000',
-                    accessory: '#8B4513'
-                },
-                knight: {
-                    skin: '#FDBCB4',
-                    hair: '#FFD700',
-                    eyes: '#0066CC',
-                    shirt: '#C0C0C0',
-                    pants: '#8B4513',
-                    accessory: '#C0C0C0'
-                },
-                archer: {
-                    skin: '#E0AC69',
-                    hair: '#8B4513',
-                    eyes: '#228B22',
-                    shirt: '#228B22',
-                    pants: '#8B4513',
-                    accessory: '#8B4513'
-                },
-                pirate: {
-                    skin: '#C68642',
-                    hair: '#000000',
-                    eyes: '#000000',
-                    shirt: '#8B0000',
-                    pants: '#000000',
-                    accessory: '#FFD700'
-                }
-            };
-
-            const preset = presets[type];
-            if (preset) {
-                Object.keys(preset).forEach(category => {
-                    applyCustomization(category, preset[category]);
-                    
-                    // Update active buttons
-                    document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.value === preset[category]) {
-                            btn.classList.add('active');
-                        }
-                    });
-                });
-                showToast(`🎭 ${type.charAt(0).toUpperCase() + type.slice(1)} carregado!`);
-            }
-        }
-
-        function loadFootballTeam(team) {
-            const teams = {
-                flamengo: {
-                    skin: '#E0AC69',
-                    hair: '#8B4513',
-                    eyes: '#000000',
-                    shirt: '#DC143C',
-                    pants: '#000000',
-                    accessory: 'transparent'
-                },
-                palmeiras: {
-                    skin: '#FDBCB4',
-                    hair: '#8B4513',
-                    eyes: '#228B22',
-                    shirt: '#228B22',
-                    pants: '#FFFFFF',
-                    accessory: 'transparent'
-                },
-                corinthians: {
-                    skin: '#F1C27D',
-                    hair: '#000000',
-                    eyes: '#000000',
-                    shirt: '#FFFFFF',
-                    pants: '#000000',
-                    accessory: 'transparent'
-                },
-                santos: {
-                    skin: '#E0AC69',
-                    hair: '#000000',
-                    eyes: '#8B4513',
-                    shirt: '#FFFFFF',
-                    pants: '#000000',
-                    accessory: 'transparent'
-                },
-                saopaulo: {
-                    skin: '#FDBCB4',
-                    hair: '#8B4513',
-                    eyes: '#0066CC',
-                    shirt: '#DC143C',
-                    pants: '#FFFFFF',
-                    accessory: 'transparent'
-                },
-                vasco: {
-                    skin: '#C68642',
-                    hair: '#000000',
-                    eyes: '#000000',
-                    shirt: '#000000',
-                    pants: '#FFFFFF',
-                    accessory: 'transparent'
-                },
-                gremio: {
-                    skin: '#FDBCB4',
-                    hair: '#FFD700',
-                    eyes: '#0066CC',
-                    shirt: '#4169E1',
-                    pants: '#000000',
-                    accessory: 'transparent'
-                },
-                internacional: {
-                    skin: '#E0AC69',
-                    hair: '#8B0000',
-                    eyes: '#8B4513',
-                    shirt: '#DC143C',
-                    pants: '#FFFFFF',
-                    accessory: 'transparent'
-                }
-            };
-
-            const teamData = teams[team];
-            if (teamData) {
-                Object.keys(teamData).forEach(category => {
-                    applyCustomization(category, teamData[category]);
-                    
-                    // Update active buttons
-                    document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.value === teamData[category]) {
-                            btn.classList.add('active');
-                        }
-                    });
-                });
-                showToast(`⚽ Torcedor do ${team.charAt(0).toUpperCase() + team.slice(1)} criado!`);
-            }
-        }
-
-        function loadGameCharacter(character) {
-            const characters = {
-                mario: {
-                    skin: '#FDBCB4',
-                    hair: '#8B4513',
-                    eyes: '#0066CC',
-                    shirt: '#DC143C',
-                    pants: '#4169E1',
-                    accessory: '#FFD700'
-                },
-                luigi: {
-                    skin: '#FDBCB4',
-                    hair: '#8B4513',
-                    eyes: '#0066CC',
-                    shirt: '#228B22',
-                    pants: '#4169E1',
-                    accessory: '#FFD700'
-                },
-                link: {
-                    skin: '#F1C27D',
-                    hair: '#FFD700',
-                    eyes: '#0066CC',
-                    shirt: '#228B22',
-                    pants: '#8B4513',
-                    accessory: '#C0C0C0'
-                },
-                sonic: {
-                    skin: '#4169E1',
-                    hair: '#4169E1',
-                    eyes: '#228B22',
-                    shirt: '#4169E1',
-                    pants: '#4169E1',
-                    accessory: '#DC143C'
-                },
-                steve: {
-                    skin: '#C68642',
-                    hair: '#8B4513',
-                    eyes: '#FFFFFF',
-                    shirt: '#4169E1',
-                    pants: '#4169E1',
-                    accessory: 'transparent'
-                },
-                alex: {
-                    skin: '#E0AC69',
-                    hair: '#FF4500',
-                    eyes: '#228B22',
-                    shirt: '#228B22',
-                    pants: '#8B4513',
-                    accessory: 'transparent'
-                },
-                creeper: {
-                    skin: '#228B22',
-                    hair: 'transparent',
-                    eyes: '#000000',
-                    shirt: '#228B22',
-                    pants: '#228B22',
-                    accessory: 'transparent'
-                },
-                enderman: {
-                    skin: '#000000',
-                    hair: 'transparent',
-                    eyes: '#8A2BE2',
-                    shirt: '#000000',
-                    pants: '#000000',
-                    accessory: 'transparent'
-                }
-            };
-
-            const charData = characters[character];
-            if (charData) {
-                Object.keys(charData).forEach(category => {
-                    applyCustomization(category, charData[category]);
-                    
-                    // Update active buttons
-                    document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.value === charData[category]) {
-                            btn.classList.add('active');
-                        }
-                    });
-                });
-                showToast(`🎮 ${character.charAt(0).toUpperCase() + character.slice(1)} carregado!`);
-            }
-        }
-
-        function downloadSkin() {
-            const button = event.target.closest('.action-btn');
-            button.innerHTML = '<span class="loading"></span> Gerando PNG...';
-            
-            setTimeout(() => {
-                // Create a canvas for the Minecraft skin (64x64 standard size)
-                const canvas = document.createElement('canvas');
-                canvas.width = 64;
-                canvas.height = 64;
-                const ctx = canvas.getContext('2d');
-                
-                // Get current skin colors
-                const skinColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--skin-color') || '#FDBCB4';
-                const hairColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--hair-color') || '#8B4513';
-                const eyeColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--eye-color') || '#000000';
-                const shirtColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--shirt-color') || '#4169E1';
-                const pantsColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--pants-color') || '#000080';
-                const accessoryColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--accessory-color') || 'transparent';
-                
-                // Clear canvas with transparent background
-                ctx.clearRect(0, 0, 64, 64);
-                
-                // Draw head (front face) - 8x8 pixels at position (8,8)
-                ctx.fillStyle = skinColor;
-                ctx.fillRect(8, 8, 8, 8);
-                
-                // Draw hair on head if not transparent
-                if (hairColor !== 'transparent') {
-                    ctx.fillStyle = hairColor;
-                    ctx.fillRect(8, 8, 8, 3); // Hair on top
-                    ctx.fillRect(8, 8, 2, 8); // Hair on sides
-                    ctx.fillRect(14, 8, 2, 8);
-                }
-                
-                // Draw eyes
-                ctx.fillStyle = eyeColor;
-                ctx.fillRect(10, 10, 1, 1); // Left eye
-                ctx.fillRect(13, 10, 1, 1); // Right eye
-                
-                // Draw mouth (small line)
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(11, 12, 2, 1);
-                
-                // Draw body (front) - 8x12 pixels at position (20,20)
-                ctx.fillStyle = shirtColor;
-                ctx.fillRect(20, 20, 8, 12);
-                
-                // Draw arms (front) - 4x12 pixels each
-                ctx.fillStyle = skinColor;
-                ctx.fillRect(44, 20, 4, 12); // Right arm
-                ctx.fillRect(36, 52, 4, 12); // Left arm
-                
-                // Draw legs (front) - 4x12 pixels each
-                ctx.fillStyle = pantsColor;
-                ctx.fillRect(4, 20, 4, 12); // Right leg
-                ctx.fillRect(20, 52, 4, 12); // Left leg
-                
-                // Add accessory overlay if not transparent
-                if (accessoryColor !== 'transparent') {
-                    ctx.fillStyle = accessoryColor;
-                    ctx.globalAlpha = 0.7;
-                    ctx.fillRect(20, 20, 8, 4); // Chest accessory
-                    ctx.globalAlpha = 1.0;
-                }
-                
-                // Add some detail pixels for better appearance
-                ctx.fillStyle = '#000000';
-                // Add outline details
-                ctx.fillRect(8, 8, 8, 1); // Head top outline
-                ctx.fillRect(8, 15, 8, 1); // Head bottom outline
-                ctx.fillRect(8, 8, 1, 8); // Head left outline
-                ctx.fillRect(15, 8, 1, 8); // Head right outline
-                
-                // Convert canvas to blob and download
-                canvas.toBlob(function(blob) {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `MinecraftSkin_${Date.now()}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    
-                    button.innerHTML = '<span>⬇️</span> Baixar';
-                    triggerHaptic(button);
-                    showToast('🎨 Skin PNG baixada! Pronta para usar no Minecraft!');
-                }, 'image/png');
-                
-            }, 1200);
-        }
-
-        function resetSkin() {
-            const button = event.target.closest('.action-btn');
-            button.innerHTML = '<span class="loading"></span> Resetando...';
-            
-            setTimeout(() => {
-                const defaults = {
-                    skin: '#FDBCB4',
-                    hair: '#8B4513',
-                    eyes: '#000000',
-                    shirt: '#4169E1',
-                    pants: '#000080',
-                    accessory: 'transparent'
-                };
-
-                Object.keys(defaults).forEach(category => {
-                    applyCustomization(category, defaults[category]);
-                    
-                    // Reset active buttons
-                    document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.value === defaults[category]) {
-                            btn.classList.add('active');
-                        }
-                    });
-                });
-
-                currentRotation = 0;
-                document.getElementById('character').style.transform = 'rotateY(0deg)';
-                
-                button.innerHTML = '<span>🔄</span> Reset';
-                triggerHaptic(button);
-                showToast('🔄 Skin resetada!');
-            }, 600);
-        }
-
-        // Mobile-specific functions
-        function triggerHaptic(element) {
-            if (element) {
-                element.classList.add('haptic');
-                setTimeout(() => element.classList.remove('haptic'), 100);
-            }
-            
-            // Vibration API for mobile devices
-            if ('vibrate' in navigator) {
-                navigator.vibrate(50);
-            }
-        }
-
-        function showToast(message) {
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 80px;
-                left: 20px;
-                right: 20px;
-                background: rgba(0,0,0,0.9);
-                color: white;
-                padding: 15px;
-                border-radius: 15px;
-                text-align: center;
-                z-index: 1001;
-                transform: translateY(-100px);
-                opacity: 0;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255,255,255,0.2);
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-
-            // Show toast
-            setTimeout(() => {
-                toast.style.transform = 'translateY(0)';
-                toast.style.opacity = '1';
-            }, 100);
-
-            // Hide toast
-            setTimeout(() => {
-                toast.style.transform = 'translateY(-100px)';
-                toast.style.opacity = '0';
-                setTimeout(() => document.body.removeChild(toast), 300);
-            }, 3000);
-        }
-
-        function showTip() {
-            setTimeout(() => {
-                document.getElementById('floatingTip').classList.add('show');
-            }, 2000);
-        }
-
-        function hideTip() {
-            document.getElementById('floatingTip').classList.remove('show');
-        }
-
-        function setupTouchEvents() {
-            // Add touch events for better mobile interaction
-            let touchStartY = 0;
-            let touchEndY = 0;
-
-            document.addEventListener('touchstart', function(e) {
-                touchStartY = e.changedTouches[0].screenY;
-            });
-
-            document.addEventListener('touchend', function(e) {
-                touchEndY = e.changedTouches[0].screenY;
-                handleSwipe();
-            });
-
-            function handleSwipe() {
-                const swipeThreshold = 50;
-                const diff = touchStartY - touchEndY;
-
-                if (Math.abs(diff) > swipeThreshold) {
-                    if (diff > 0) {
-                        // Swipe up - next tab
-                        switchToNextTab();
-                    } else {
-                        // Swipe down - previous tab
-                        switchToPrevTab();
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'taxi-yellow': '#FFD700',
+                        'taxi-dark': '#1A1A1A',
+                        'taxi-gray': '#2D2D2D'
                     }
                 }
             }
         }
+    </script>
+    <style>
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        }
+        .shadow-taxi {
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        }
+        .pulse-animation {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 
-        function switchToNextTab() {
-            const tabs = ['skin', 'hair', 'eyes', 'shirt', 'pants', 'accessory'];
-            const currentIndex = tabs.indexOf(currentTab);
-            const nextIndex = (currentIndex + 1) % tabs.length;
-            const nextTab = tabs[nextIndex];
+    <!-- Login Page -->
+    <div id="login-page" class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-6 shadow-taxi">
+            <div class="max-w-md mx-auto text-center">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="bg-taxi-dark text-taxi-yellow p-3 rounded-full mr-3">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold">Táxi Tapauá</h1>
+                        <p class="text-taxi-dark opacity-80">Seu transporte confiável</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex items-center justify-center p-6">
+            <div class="max-w-sm w-full space-y-4">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Bem-vindo!</h2>
+                    <p class="text-gray-600">Como você deseja usar o aplicativo?</p>
+                </div>
+                
+                <button onclick="showPassengerLogin()" class="w-full bg-taxi-dark hover:bg-taxi-gray text-taxi-yellow font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-2xl mr-3">👤</span>
+                        Sou Passageiro
+                    </div>
+                </button>
+                
+                <button onclick="showDriverInterface()" class="w-full bg-taxi-yellow hover:bg-yellow-400 text-taxi-dark font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-2xl mr-3">👨‍💼</span>
+                        Sou Motorista
+                    </div>
+                </button>
+                
+                <button onclick="showAdminLogin()" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-xl transition duration-200">
+                    <div class="flex items-center justify-center">
+                        <span class="text-xl mr-2">🛡️</span>
+                        Administração
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passenger Login -->
+    <div id="passenger-login" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-4 shadow-taxi">
+            <div class="flex items-center">
+                <button onclick="showLoginPage()" class="mr-4 p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h2 class="text-xl font-bold">Login do Passageiro</h2>
+            </div>
+        </div>
+
+        <div class="p-6 max-w-md mx-auto">
+            <!-- Login Form -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-taxi-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">👤</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Entre ou Cadastre-se</h3>
+                    <p class="text-gray-600 text-sm">Informe seus dados para continuar</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <input type="text" id="passenger-name" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Seu nome completo">
+                    <input type="tel" id="passenger-phone" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Seu telefone (11) 99999-9999">
+                </div>
+                
+                <button onclick="loginPassenger()" class="w-full gradient-bg text-taxi-dark font-bold py-4 px-6 rounded-xl mt-6 transition duration-200 transform hover:scale-105 shadow-lg">
+                    Entrar
+                </button>
+                
+                <div class="text-center mt-4">
+                    <p class="text-xs text-gray-500">
+                        Ao continuar, você concorda com nossos termos de uso
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="home-page" class="hidden min-h-screen flex flex-col">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-6 shadow-taxi">
+            <div class="max-w-md mx-auto">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="bg-taxi-dark text-taxi-yellow p-2 rounded-full mr-3">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold">Táxi Tapauá</h1>
+                            <p class="text-sm opacity-80" id="welcome-message">Olá!</p>
+                        </div>
+                    </div>
+                    <button onclick="logoutPassenger()" class="p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex items-center justify-center p-6">
+            <div class="max-w-sm w-full space-y-4">
+                <button onclick="showPassengerInterface('mototaxi')" class="w-full bg-taxi-dark hover:bg-taxi-gray text-taxi-yellow font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-2xl mr-3">🏍️</span>
+                        Chamar um Mototaxista
+                    </div>
+                </button>
+                
+                <button onclick="showPassengerInterface('frete')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-2xl mr-3">🚛</span>
+                        Chamar um Carro Frete
+                    </div>
+                </button>
+                
+                <!-- Divider -->
+                <div class="flex items-center my-6">
+                    <div class="flex-1 border-t border-gray-300"></div>
+                    <span class="px-4 text-gray-500 text-sm">Painéis de Controle</span>
+                    <div class="flex-1 border-t border-gray-300"></div>
+                </div>
+                
+                <button onclick="showDriverInterface()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-xl mr-3">👨‍💼</span>
+                        Painel dos Motoristas
+                    </div>
+                </button>
+                
+                <button onclick="showAdminLogin()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-xl mr-3">🛡️</span>
+                        Painel Administrativo
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passenger Interface -->
+    <div id="passenger-page" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-4 shadow-taxi">
+            <div class="flex items-center">
+                <button onclick="showHomePage()" class="mr-4 p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h2 id="passenger-title" class="text-xl font-bold">Solicitar Corrida</h2>
+            </div>
+        </div>
+
+        <div class="p-6 max-w-md mx-auto">
+            <!-- Trip Form -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <!-- Origin -->
+                <div class="relative mb-4">
+                    <div class="flex items-center mb-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                        <label class="text-sm font-medium text-gray-700">Meu Local de Partida</label>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="origin-input" class="w-full p-4 pr-12 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Digite sua localização atual">
+                        <button id="origin-voice-btn" onclick="startVoiceRecording('origin')" class="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-taxi-yellow transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Destination -->
+                <div class="relative mb-6">
+                    <div class="flex items-center mb-2">
+                        <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
+                        <label class="text-sm font-medium text-gray-700">Para onde estou Indo</label>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="destination-input" class="w-full p-4 pr-12 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Digite seu destino">
+                        <button id="destination-voice-btn" onclick="startVoiceRecording('destination')" class="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-taxi-yellow transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Price Display -->
+                <div class="bg-taxi-yellow bg-opacity-20 p-4 rounded-lg text-center mb-6">
+                    <div id="ride-price" class="text-2xl font-bold text-taxi-dark">R$ 6,00</div>
+                    <div class="text-sm text-gray-600">Tarifa fixa</div>
+                </div>
+
+                <!-- Request Button -->
+                <button id="request-ride-btn" onclick="requestRide()" class="w-full gradient-bg text-taxi-dark font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <span id="request-btn-text">Solicitar Mototáxi</span>
+                </button>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- Waiting Screen -->
+    <div id="waiting-page" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-4 shadow-taxi">
+            <div class="flex items-center">
+                <button onclick="cancelFromWaiting()" class="mr-4 p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h2 id="waiting-title" class="text-xl font-bold">Procurando Mototaxista</h2>
+            </div>
+        </div>
+
+        <div class="p-6 max-w-md mx-auto">
+            <!-- Status Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <div class="text-center">
+                    <div id="waiting-status-icon" class="text-6xl mb-4 pulse-animation">🔍</div>
+                    <h3 id="waiting-status-title" class="font-bold text-xl mb-2">Procurando motorista...</h3>
+                    <p id="waiting-status-description" class="text-gray-600 mb-6">Aguarde enquanto encontramos um motorista disponível para você</p>
+                    
+                    <!-- Loading Animation -->
+                    <div class="flex justify-center mb-6">
+                        <div class="flex space-x-1">
+                            <div class="w-2 h-2 bg-taxi-yellow rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-taxi-yellow rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-taxi-yellow rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cancel Button -->
+                    <div id="waiting-cancel-section">
+                        <button onclick="cancelFromWaiting()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-xl transition duration-200">
+                            ❌ Cancelar Corrida
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trip Summary -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <h3 class="font-bold text-lg mb-4 text-center">Detalhes da Corrida</h3>
+                
+                <!-- Route -->
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500 mb-1">Saindo de:</div>
+                            <div class="font-medium" id="waiting-origin">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ml-2 border-l-2 border-gray-200 h-6"></div>
+                    
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500 mb-1">Indo para:</div>
+                            <div class="font-medium" id="waiting-destination">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="bg-taxi-yellow bg-opacity-20 p-4 rounded-lg text-center mb-4">
+                    <div id="waiting-price" class="text-2xl font-bold text-taxi-dark">R$ 6,00</div>
+                    <div class="text-sm text-gray-600">Tarifa fixa</div>
+                </div>
+            </div>
+
+            <!-- Driver Found Card -->
+            <div id="driver-found-card" class="hidden bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">✅</div>
+                    <h3 class="font-bold text-xl text-green-600 mb-2">Motorista Encontrado!</h3>
+                    <p class="text-gray-600">Seu motorista está a caminho</p>
+                </div>
+
+                <!-- Driver Info -->
+                <div class="bg-gradient-to-r from-taxi-yellow to-yellow-400 rounded-2xl p-6 mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4 shadow-lg">
+                            <span id="found-driver-vehicle-icon" class="text-3xl">🏍️</span>
+                        </div>
+                        <div class="text-left text-taxi-dark">
+                            <div class="font-bold text-xl" id="found-driver-name">-</div>
+                            <div class="text-sm opacity-80" id="found-driver-phone">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white bg-opacity-20 rounded-lg p-3">
+                        <div class="text-taxi-dark text-sm">
+                            <div class="flex justify-between mb-1">
+                                <span>Veículo:</span>
+                                <span class="font-medium" id="found-driver-vehicle-type">Mototáxi</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Cor:</span>
+                                <span class="font-medium" id="found-driver-vehicle-color">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3 mb-6">
+                    <div class="flex space-x-3">
+                        <button onclick="callDriver()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-xl font-bold transition duration-200">
+                            📞 Ligar
+                        </button>
+                        <button onclick="messageDriver()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-xl font-bold transition duration-200">
+                            💬 Mensagem
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Trip Progress -->
+                <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                    <div class="text-center">
+                        <div class="text-sm text-gray-600 mb-2">Status da Corrida</div>
+                        <div id="trip-status" class="font-bold text-lg text-blue-600">🚗 Motorista a caminho</div>
+                        <div class="text-xs text-gray-500 mt-1">Aguarde no local de partida</div>
+                    </div>
+                </div>
+
+                <!-- Finish Trip Button -->
+                <div id="finish-trip-section" class="hidden">
+                    <div class="bg-green-50 p-4 rounded-xl mb-4">
+                        <div class="text-center">
+                            <div class="text-green-600 font-bold mb-2">🎯 Chegou ao destino?</div>
+                            <div class="text-sm text-green-700">Confirme o final da corrida quando chegar</div>
+                        </div>
+                    </div>
+                    <button onclick="finishTripFromWaiting()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105">
+                        ✅ Confirmar Chegada
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passenger Ride Screen -->
+    <div id="passenger-ride-screen" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-4 shadow-taxi">
+            <div class="flex items-center">
+                <button onclick="cancelRideFromPassenger()" class="mr-4 p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+                <h2 class="text-xl font-bold">Sua Corrida</h2>
+            </div>
+        </div>
+
+        <div class="p-6 max-w-md mx-auto space-y-6">
+            <!-- Driver Found Status -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">✅</div>
+                    <h3 class="font-bold text-xl text-green-600 mb-2">Motorista Encontrado!</h3>
+                    <p class="text-gray-600">Seu motorista está a caminho</p>
+                </div>
+            </div>
+
+            <!-- Driver Information -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-taxi-yellow rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <span id="passenger-driver-icon" class="text-4xl">🏍️</span>
+                    </div>
+                    <div class="text-taxi-dark">
+                        <div class="font-bold text-2xl mb-2" id="passenger-driver-name">-</div>
+                        <div class="text-lg mb-4" id="passenger-driver-phone">-</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                    <div class="text-gray-800">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Veículo:</span>
+                            <span id="passenger-vehicle-type">Mototáxi</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-medium">Cor:</span>
+                            <span id="passenger-vehicle-color">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Buttons -->
+                <div class="flex space-x-3 mb-6">
+                    <button onclick="callDriverFromPassenger()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-xl font-bold transition duration-200">
+                        📞 Ligar
+                    </button>
+                    <button onclick="messageDriverFromPassenger()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-xl font-bold transition duration-200">
+                        💬 Mensagem
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trip Status -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center">
+                    <div class="text-sm text-gray-600 mb-2">Status da Corrida</div>
+                    <div id="passenger-trip-status" class="font-bold text-lg text-blue-600 mb-2">🚗 Motorista a caminho</div>
+                    <div class="text-xs text-gray-500">Aguarde no local de partida</div>
+                </div>
+            </div>
+
+            <!-- Arrival Confirmation -->
+            <div id="passenger-arrival-section" class="hidden bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center mb-4">
+                    <div class="text-green-600 font-bold mb-2">🎯 Chegou ao destino?</div>
+                    <div class="text-sm text-green-700">Confirme o final da corrida quando chegar</div>
+                </div>
+                <button onclick="confirmArrivalFromPassenger()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105">
+                    ✅ Confirmar Chegada
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Notification Window -->
+    <div id="driver-notification-window" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 transform scale-95 transition-transform duration-300" id="notification-card">
+            <!-- Notification Header -->
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+                    <span class="text-4xl">🚨</span>
+                </div>
+                <h2 class="text-2xl font-bold text-red-600 mb-2">NOVA CORRIDA!</h2>
+                <div class="text-lg font-bold text-gray-800" id="notification-service-type">Mototáxi</div>
+            </div>
+
+            <!-- Passenger Information -->
+            <div class="bg-blue-50 rounded-2xl p-4 mb-6">
+                <div class="text-center mb-4">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-3xl">👤</span>
+                    </div>
+                    <h3 class="font-bold text-xl text-blue-800" id="notification-passenger-name">Nome do Passageiro</h3>
+                    <div class="text-blue-600 font-medium" id="notification-passenger-phone">Telefone</div>
+                </div>
+            </div>
+
+            <!-- Trip Details -->
+            <div class="bg-gray-50 rounded-2xl p-4 mb-6">
+                <h4 class="font-bold text-lg mb-4 text-center text-gray-800">📍 Detalhes da Corrida</h4>
+                
+                <!-- Route -->
+                <div class="space-y-3 mb-4">
+                    <div class="flex items-start">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mr-3 mt-1"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500 mb-1">BUSCAR EM:</div>
+                            <div class="font-medium text-gray-800" id="notification-origin">Local de partida</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ml-2 border-l-2 border-dashed border-gray-300 h-6"></div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-4 h-4 bg-red-500 rounded-full mr-3 mt-1"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500 mb-1">LEVAR PARA:</div>
+                            <div class="font-medium text-gray-800" id="notification-destination">Destino</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="bg-gradient-to-r from-green-400 to-green-500 rounded-xl p-4 text-center">
+                    <div class="text-white">
+                        <div class="text-sm opacity-90 mb-1">VOCÊ VAI GANHAR:</div>
+                        <div class="text-3xl font-bold" id="notification-price">R$ 0,00</div>
+                        <div class="text-xs opacity-75">Valor líquido (já descontado R$ 1,00 do app)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer -->
+            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-3 mb-6">
+                <div class="text-center">
+                    <div class="text-red-600 font-bold mb-1">⏰ TEMPO RESTANTE</div>
+                    <div class="text-3xl font-bold text-red-700" id="notification-timer">15</div>
+                    <div class="text-xs text-red-600">segundos para aceitar</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button onclick="acceptRideFromNotification()" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
+                    <div class="flex items-center justify-center">
+                        <span class="text-2xl mr-3">✅</span>
+                        ACEITAR CORRIDA
+                    </div>
+                </button>
+                
+                <button onclick="rejectRideFromNotification()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-xl transition duration-200">
+                    <div class="flex items-center justify-center">
+                        <span class="text-xl mr-2">❌</span>
+                        Recusar
+                    </div>
+                </button>
+            </div>
+
+            <!-- Contact Buttons -->
+            <div class="flex space-x-3 mt-4">
+                <button onclick="callPassengerFromNotification()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
+                    📞 Ligar
+                </button>
+                <button onclick="messagePassengerFromNotification()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
+                    💬 WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trip Details Screen -->
+    <div id="trip-details-page" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-4 shadow-taxi">
+            <div class="flex items-center">
+                <button onclick="backToDriverDashboard()" class="mr-4 p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h2 class="text-xl font-bold">Detalhes da Corrida</h2>
+            </div>
+        </div>
+
+        <div class="p-6 max-w-md mx-auto space-y-6">
+            <!-- Trip Status -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center">
+                    <div id="trip-status-icon" class="text-6xl mb-4">🚗</div>
+                    <h3 id="trip-status-title" class="font-bold text-xl mb-2 text-green-600">Corrida Aceita!</h3>
+                    <p id="trip-status-description" class="text-gray-600 mb-4">Dirija-se ao local de partida</p>
+                    
+                    <!-- Trip Progress Steps -->
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <div class="space-y-3">
+                            <div id="step-pickup" class="flex items-center text-sm">
+                                <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-xs font-bold">1</div>
+                                <span class="font-medium text-blue-600">Ir buscar o passageiro</span>
+                            </div>
+                            <div id="step-transport" class="flex items-center text-sm opacity-50">
+                                <div class="w-6 h-6 bg-gray-300 text-white rounded-full flex items-center justify-center mr-3 text-xs font-bold">2</div>
+                                <span>Transportar ao destino</span>
+                            </div>
+                            <div id="step-complete" class="flex items-center text-sm opacity-50">
+                                <div class="w-6 h-6 bg-gray-300 text-white rounded-full flex items-center justify-center mr-3 text-xs font-bold">3</div>
+                                <span>Finalizar corrida</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Information -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="font-bold text-lg mb-4 flex items-center">
+                    <span class="text-2xl mr-2">🗺️</span>
+                    Rota da Corrida
+                </h3>
+                
+                <div class="space-y-4">
+                    <!-- Origin -->
+                    <div class="flex items-start">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mr-3 mt-1"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500 mb-1">PARTIDA</div>
+                            <div class="font-medium text-gray-800" id="trip-origin">-</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Route Line -->
+                    <div class="ml-2 border-l-2 border-dashed border-gray-300 h-8"></div>
+                    
+                    <!-- Destination -->
+                    <div class="flex items-start">
+                        <div class="w-4 h-4 bg-red-500 rounded-full mr-3 mt-1"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500 mb-1">DESTINO</div>
+                            <div class="font-medium text-gray-800" id="trip-destination">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="bg-taxi-yellow bg-opacity-20 p-4 rounded-lg text-center mt-6">
+                    <div id="trip-price" class="text-3xl font-bold text-taxi-dark">R$ 0,00</div>
+                    <div class="text-sm text-gray-600">Valor da corrida</div>
+                </div>
+            </div>
+
+
+
+            <!-- Action Buttons -->
+            <div class="space-y-4">
+                <!-- Trip Control Buttons -->
+                <div class="space-y-3">
+                    <!-- Pickup Button -->
+                    <button id="pickup-btn" onclick="confirmPickup()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105">
+                        <div class="flex items-center justify-center">
+                            <span class="text-2xl mr-3">🚗</span>
+                            Confirmar que Peguei o Passageiro
+                        </div>
+                    </button>
+
+                    <!-- Complete Trip Button -->
+                    <button id="complete-btn" onclick="completeTripFromDetails()" class="hidden w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 transform hover:scale-105">
+                        <div class="flex items-center justify-center">
+                            <span class="text-2xl mr-3">✅</span>
+                            Finalizar Corrida
+                        </div>
+                    </button>
+
+                    <!-- Cancel Trip Button -->
+                    <button onclick="cancelTripFromDetails()" class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-xl transition duration-200">
+                        <div class="flex items-center justify-center">
+                            <span class="text-xl mr-2">❌</span>
+                            Cancelar Corrida
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trip Timer -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center">
+                    <div class="text-sm text-gray-600 mb-2">Tempo da corrida</div>
+                    <div id="trip-timer" class="text-2xl font-bold text-blue-600">00:00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Interface -->
+    <div id="driver-page" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-4 shadow-taxi">
+            <div class="flex items-center">
+                <button onclick="showHomePage()" class="mr-4 p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h2 class="text-xl font-bold">Motorista Parceiro</h2>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="driver-registration" class="p-6 max-w-md mx-auto">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-center mb-6">Cadastre-se como Motorista</h3>
+                
+                <div class="space-y-4">
+                    <select id="driver-type" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all">
+                        <option value="">Selecione o tipo de serviço</option>
+                        <option value="mototaxi">🏍️ Mototaxista</option>
+                        <option value="frete">🚛 Motorista de Carro Frete</option>
+                    </select>
+                    <input type="text" id="driver-name" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Nome completo">
+                    <input type="text" id="driver-cpf" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="CPF (000.000.000-00)" maxlength="14">
+                    <input type="tel" id="driver-phone" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Telefone">
+                    <input type="text" id="vehicle-color" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Cor do veículo">
+                </div>
+                
+                <button onclick="registerDriver()" class="w-full gradient-bg text-taxi-dark font-bold py-4 px-6 rounded-xl mt-6 transition duration-200 transform hover:scale-105 shadow-lg">
+                    Cadastrar
+                </button>
+            </div>
+        </div>
+
+        <!-- Driver Dashboard -->
+        <div id="driver-dashboard" class="hidden p-6 max-w-md mx-auto space-y-6">
+            <!-- Driver Info -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-taxi-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span id="driver-type-icon" class="text-2xl">🏍️</span>
+                    </div>
+                    <h3 class="font-bold text-lg" id="driver-welcome">Bem-vindo!</h3>
+                    <p class="text-gray-600 text-sm" id="driver-type-text">Mototaxista</p>
+                </div>
+            </div>
+
+            <!-- Payment Status -->
+            <div id="payment-status" class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">💰</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Taxa Diária Pendente</h3>
+                    <p class="text-gray-600 mb-4">Pague R$ 3,00 para começar a receber corridas</p>
+                    <button onclick="makePayment()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                        Pagar via PIX - R$ 3,00
+                    </button>
+                </div>
+            </div>
+
+            <!-- Work Toggle -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg">Começar Trabalhar</h3>
+                        <p class="text-gray-600 text-sm">Receber notificações de corridas</p>
+                    </div>
+                    <button id="status-toggle" onclick="toggleDriverStatus()" class="bg-gray-400 text-white px-6 py-3 rounded-full font-medium" disabled>
+                        Parado
+                    </button>
+                </div>
+            </div>
+
+            <!-- Available Rides -->
+            <div id="available-rides" class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg">Corridas Disponíveis</h3>
+                    <div id="notification-badge" class="hidden bg-red-500 text-white text-xs px-2 py-1 rounded-full pulse-animation">
+                        Nova!
+                    </div>
+                </div>
+                <div id="rides-list">
+                    <p class="text-gray-500 text-center py-8">Nenhuma corrida disponível</p>
+                </div>
+            </div>
+
+            <!-- App Payment Status -->
+            <div id="app-payment-status" class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">💳</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Pagamento do Aplicativo</h3>
+                    <div id="app-payment-details" class="mb-4">
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-600">Corridas não pagas:</span>
+                                <span class="font-bold text-red-600" id="unpaid-rides-count">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total devido:</span>
+                                <span class="font-bold text-red-600" id="total-owed">R$ 0,00</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-4">R$ 1,00 por corrida realizada</p>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <div class="text-sm text-yellow-800">
+                                <div class="font-medium mb-1">⏳ Aguardando Pagamento</div>
+                                <div class="text-xs">Esta seção desaparecerá após o pagamento ser processado</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Ride -->
+            <div id="current-ride" class="hidden bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="font-bold text-lg mb-4 text-green-600">🚗 Corrida em Andamento</h3>
+                <div id="current-ride-details" class="mb-4"></div>
+                <button onclick="finishRide()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                    ✅ Finalizar Corrida
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login -->
+    <div id="admin-login" class="hidden min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div class="max-w-sm w-full bg-white rounded-2xl shadow-lg p-6">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-taxi-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">🛡️</span>
+                </div>
+                <h2 class="text-xl font-bold">Área Administrativa</h2>
+            </div>
             
-            document.querySelector(`[onclick="showTab('${nextTab}')"]`).click();
+            <div class="space-y-4">
+                <input type="password" id="admin-password" class="w-full p-4 bg-gray-50 rounded-lg focus:ring-2 focus:ring-taxi-yellow focus:bg-white transition-all" placeholder="Senha de administrador">
+                <button onclick="adminLogin()" class="w-full bg-taxi-dark hover:bg-taxi-gray text-taxi-yellow font-bold py-4 px-6 rounded-xl transition duration-200">
+                    Entrar
+                </button>
+                <button onclick="showHomePage()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-xl transition duration-200">
+                    Voltar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIX Payment Modal -->
+    <div id="pix-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">💳</span>
+                </div>
+                <h3 class="text-xl font-bold mb-2" id="pix-title">Pagamento PIX</h3>
+                <div class="text-3xl font-bold text-green-600 mb-2" id="pix-amount">R$ 0,00</div>
+                <p class="text-gray-600 text-sm" id="pix-description">Escaneie o QR Code ou copie a chave PIX</p>
+            </div>
+            
+            <!-- QR Code Placeholder -->
+            <div class="bg-gray-100 rounded-xl p-6 mb-6 text-center">
+                <div class="w-32 h-32 bg-white rounded-lg mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-gray-300">
+                    <span class="text-4xl">📱</span>
+                </div>
+                <p class="text-sm text-gray-600">QR Code PIX</p>
+            </div>
+            
+            <!-- PIX Key -->
+            <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                <div class="text-sm text-gray-600 mb-2">Chave PIX:</div>
+                <div class="flex items-center justify-between bg-white rounded-lg p-3 border">
+                    <span class="text-sm font-mono text-gray-800" id="pix-key">41dd3c2e-2118-49c5-b455-1a60d43efc35</span>
+                    <button onclick="copyPixKey()" class="text-blue-500 hover:text-blue-600 p-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="bg-blue-50 rounded-xl p-4 mb-6">
+                <div class="text-sm text-blue-800">
+                    <div class="font-medium mb-2">📋 Como pagar:</div>
+                    <ol class="list-decimal list-inside space-y-1 text-xs">
+                        <li>Abra seu app do banco</li>
+                        <li>Escolha PIX → Pagar</li>
+                        <li>Escaneie o QR Code ou cole a chave</li>
+                        <li>Confirme o valor e pague</li>
+                        <li>Clique em "Já Paguei" abaixo</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button onclick="confirmPixPayment()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                    ✅ Já Paguei
+                </button>
+                <button onclick="closePixModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-xl transition duration-200">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <div class="gradient-bg text-taxi-dark p-4 shadow-taxi">
+            <div class="flex items-center">
+                <button onclick="showHomePage()" class="mr-4 p-2 rounded-full hover:bg-black hover:bg-opacity-10">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h2 class="text-xl font-bold">Dashboard Administrativo</h2>
+            </div>
+        </div>
+        
+        <div class="p-6 max-w-4xl mx-auto">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-taxi-yellow" id="total-drivers">0</div>
+                    <div class="text-xs text-gray-600">Motoristas</div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-green-500" id="online-drivers">0</div>
+                    <div class="text-xs text-gray-600">Online</div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-500" id="active-rides">0</div>
+                    <div class="text-xs text-gray-600">Corridas</div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-purple-500" id="total-earnings">R$ 0</div>
+                    <div class="text-xs text-gray-600">Arrecadação</div>
+                </div>
+            </div>
+
+            <!-- Drivers List -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="font-bold text-xl mb-4">Motoristas Cadastrados</h3>
+                <div id="drivers-list" class="space-y-4">
+                    <p class="text-gray-500 text-center py-8">Nenhum motorista cadastrado</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAJk8-W80iJyGHoJBeNZDo5k9wmh8HRPrQ",
+            authDomain: "mototaxi-tapaua.firebaseapp.com",
+            databaseURL: "https://mototaxi-tapaua-default-rtdb.firebaseio.com",
+            projectId: "mototaxi-tapaua",
+            storageBucket: "mototaxi-tapaua.firebasestorage.app",
+            messagingSenderId: "629986832248",
+            appId: "1:629986832248:web:fd044f24cc51aa018ba28d",
+            measurementId: "G-1S6PYNHWN5"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // Global variables
+        let appData = {
+            drivers: [],
+            rides: [],
+            currentUser: null,
+            adminPassword: '@Zxcasdqwe123'
+        };
+
+        // Firebase Data Functions
+        function saveDriverData(driver) {
+            return database.ref('drivers/' + driver.id).set(driver);
         }
 
-        function switchToPrevTab() {
-            const tabs = ['skin', 'hair', 'eyes', 'shirt', 'pants', 'accessory'];
-            const currentIndex = tabs.indexOf(currentTab);
-            const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
-            const prevTab = tabs[prevIndex];
-            
-            document.querySelector(`[onclick="showTab('${prevTab}')"]`).click();
+        function saveRideData(ride) {
+            return database.ref('rides/' + ride.id).set(ride);
         }
 
-        function saveProgress() {
-            const progress = {
-                customizationCount,
-                skinCount,
-                savedSkins,
-                lastSaved: Date.now()
+        function loadDrivers() {
+            return database.ref('drivers').once('value').then(snapshot => {
+                const drivers = [];
+                snapshot.forEach(child => {
+                    drivers.push(child.val());
+                });
+                appData.drivers = drivers;
+                return drivers;
+            });
+        }
+
+        function loadRides() {
+            return database.ref('rides').once('value').then(snapshot => {
+                const rides = [];
+                snapshot.forEach(child => {
+                    rides.push(child.val());
+                });
+                appData.rides = rides;
+                return rides;
+            });
+        }
+
+        function listenToRides(callback) {
+            database.ref('rides').on('value', snapshot => {
+                const rides = [];
+                snapshot.forEach(child => {
+                    rides.push(child.val());
+                });
+                appData.rides = rides;
+                if (callback) callback(rides);
+            });
+        }
+
+        function listenToDrivers(callback) {
+            database.ref('drivers').on('value', snapshot => {
+                const drivers = [];
+                snapshot.forEach(child => {
+                    drivers.push(child.val());
+                });
+                appData.drivers = drivers;
+                if (callback) callback(drivers);
+            });
+        }
+
+        // Legacy function for compatibility
+        function saveData() {
+            // This function is now handled by individual save functions
+            console.log('Data saved to Firebase');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            toast.className = `toast p-4 rounded-lg text-white ${bgColor} shadow-lg`;
+            toast.textContent = message;
+            
+            document.getElementById('toast-container').appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Navigation Functions
+        function showLoginPage() {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('login-page').classList.remove('hidden');
+        }
+
+        function showPassengerLogin() {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('passenger-login').classList.remove('hidden');
+        }
+
+        function showHomePage() {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('home-page').classList.remove('hidden');
+        }
+
+        function showPassengerInterface(type = 'mototaxi') {
+            // Check if passenger is logged in
+            if (!appData.currentPassenger) {
+                showToast('Faça login primeiro', 'error');
+                showPassengerLogin();
+                return;
+            }
+            
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('passenger-page').classList.remove('hidden');
+            
+            const title = document.getElementById('passenger-title');
+            const price = document.getElementById('ride-price');
+            const btnText = document.getElementById('request-btn-text');
+            
+            if (type === 'frete') {
+                title.textContent = 'Chamar um Carro Frete';
+                price.textContent = 'R$ 26,00';
+                btnText.textContent = 'Chamar Carro Frete';
+                window.currentRideType = 'frete';
+            } else {
+                title.textContent = 'Chamar um Mototaxista';
+                price.textContent = 'R$ 6,00';
+                btnText.textContent = 'Chamar Mototaxista';
+                window.currentRideType = 'mototaxi';
+            }
+        }
+
+        function showDriverInterface() {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('driver-page').classList.remove('hidden');
+            
+            const savedDriver = localStorage.getItem('current_driver');
+            if (savedDriver) {
+                appData.currentUser = JSON.parse(savedDriver);
+                showDriverDashboard();
+            }
+        }
+
+        function showAdminLogin() {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('admin-login').classList.remove('hidden');
+        }
+
+        // Passenger Functions
+        function loginPassenger() {
+            const name = document.getElementById('passenger-name').value.trim();
+            const phone = document.getElementById('passenger-phone').value.trim();
+            
+            if (!name || !phone) {
+                showToast('Por favor, preencha nome e telefone', 'error');
+                return;
+            }
+            
+            if (phone.length < 10) {
+                showToast('Por favor, informe um telefone válido', 'error');
+                return;
+            }
+            
+            // Save passenger data
+            const passenger = {
+                id: generateId(),
+                name: name,
+                phone: phone,
+                loginAt: new Date().toISOString()
             };
-            localStorage.setItem('minecraftSkinCreator', JSON.stringify(progress));
+            
+            localStorage.setItem('current_passenger', JSON.stringify(passenger));
+            appData.currentPassenger = passenger;
+            
+            // Update welcome message
+            document.getElementById('welcome-message').textContent = `Olá, ${name.split(' ')[0]}!`;
+            
+            showToast(`Bem-vindo, ${name.split(' ')[0]}!`, 'success');
+            showHomePage();
         }
 
-        function loadSavedData() {
-            const saved = localStorage.getItem('minecraftSkinCreator');
-            if (saved) {
-                const data = JSON.parse(saved);
-                customizationCount = data.customizationCount || 0;
-                skinCount = data.skinCount || 0;
-                savedSkins = data.savedSkins || [];
+        function logoutPassenger() {
+            if (confirm('Deseja sair do aplicativo?')) {
+                localStorage.removeItem('current_passenger');
+                appData.currentPassenger = null;
                 
-                document.getElementById('customCount').textContent = customizationCount;
-                document.getElementById('skinCount').textContent = skinCount;
+                // Clear form
+                document.getElementById('passenger-name').value = '';
+                document.getElementById('passenger-phone').value = '';
                 
-                // Recreate saved skin previews
-                savedSkins.forEach((skin, index) => {
-                    const preview = document.createElement('div');
-                    preview.className = 'skin-preview';
-                    preview.style.background = `linear-gradient(45deg, ${skin.shirt}, ${skin.pants})`;
-                    preview.onclick = () => loadSavedSkin(index);
-                    preview.title = `Skin ${index + 1}`;
-                    preview.textContent = '👤';
-                    document.getElementById('savedSkinsContainer').appendChild(preview);
+                showToast('Logout realizado com sucesso!', 'success');
+                showLoginPage();
+            }
+        }
+
+        function requestRide() {
+            const origin = document.getElementById('origin-input').value;
+            const destination = document.getElementById('destination-input').value;
+            
+            if (!origin || !destination) {
+                showToast('Por favor, preencha origem e destino', 'error');
+                return;
+            }
+            
+            const rideType = window.currentRideType || 'mototaxi';
+            const price = rideType === 'frete' ? 26.00 : 6.00;
+            
+            const ride = {
+                id: generateId(),
+                origin,
+                destination,
+                price: price,
+                type: rideType,
+                status: 'searching',
+                passengerId: appData.currentPassenger ? appData.currentPassenger.id : 'passenger_' + Date.now(),
+                passengerName: appData.currentPassenger ? appData.currentPassenger.name : 'Passageiro',
+                passengerPhone: appData.currentPassenger ? appData.currentPassenger.phone : '',
+                driverId: null,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to Firebase
+            saveRideData(ride).then(() => {
+                appData.rides.push(ride);
+                window.currentRideId = ride.id;
+                
+                // Navigate to waiting screen
+                showWaitingScreen(ride);
+                
+                const serviceType = rideType === 'frete' ? 'carro frete' : 'mototáxi';
+                showToast(`Corrida solicitada! Procurando ${serviceType}...`, 'success');
+                
+                startCheckingForDriver(ride.id);
+            }).catch(error => {
+                console.error('Erro ao salvar corrida:', error);
+                showToast('Erro ao solicitar corrida. Tente novamente.', 'error');
+            });
+        }
+
+        function showWaitingScreen(ride) {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('waiting-page').classList.remove('hidden');
+            
+            // Update waiting screen content
+            const serviceType = ride.type === 'frete' ? 'Carro Frete' : 'Mototaxista';
+            document.getElementById('waiting-title').textContent = `Procurando ${serviceType}`;
+            document.getElementById('waiting-origin').textContent = ride.origin;
+            document.getElementById('waiting-destination').textContent = ride.destination;
+            document.getElementById('waiting-price').textContent = `R$ ${ride.price.toFixed(2)}`;
+            
+            // Reset waiting screen state
+            document.getElementById('waiting-status-icon').textContent = '🔍';
+            document.getElementById('waiting-status-icon').className = 'text-6xl mb-4 pulse-animation';
+            document.getElementById('waiting-status-title').textContent = 'Procurando motorista...';
+            document.getElementById('waiting-status-description').textContent = 'Aguarde enquanto encontramos um motorista disponível para você';
+            document.getElementById('waiting-cancel-section').classList.remove('hidden');
+            document.getElementById('driver-found-card').classList.add('hidden');
+        }
+
+        function startCheckingForDriver(rideId) {
+            if (window.searchInterval) {
+                clearInterval(window.searchInterval);
+            }
+            
+            window.searchInterval = setInterval(() => {
+                const ride = appData.rides.find(r => r.id === rideId);
+                if (!ride) {
+                    clearInterval(window.searchInterval);
+                    return;
+                }
+                
+                if (ride.status === 'accepted') {
+                    clearInterval(window.searchInterval);
+                    showDriverFound(ride);
+                } else if (ride.status === 'cancelled') {
+                    clearInterval(window.searchInterval);
+                }
+            }, 1000);
+            
+            setTimeout(() => {
+                const ride = appData.rides.find(r => r.id === rideId);
+                if (ride && ride.status === 'searching') {
+                    ride.status = 'cancelled';
+                    saveData();
+                    clearInterval(window.searchInterval);
+                    
+                    // Update waiting screen for timeout
+                    document.getElementById('waiting-status-icon').textContent = '❌';
+                    document.getElementById('waiting-status-icon').className = 'text-6xl mb-4';
+                    document.getElementById('waiting-status-title').textContent = 'Nenhum motorista disponível';
+                    document.getElementById('waiting-status-description').textContent = 'Tente novamente em alguns minutos';
+                    document.getElementById('waiting-cancel-section').classList.add('hidden');
+                    
+                    showToast('Tempo esgotado. Nenhum motorista aceitou a corrida.', 'error');
+                    
+                    setTimeout(() => {
+                        showHomePage();
+                    }, 3000);
+                }
+            }, 60000); // 1 minute
+        }
+
+        function showDriverFound(ride) {
+            const driver = appData.drivers.find(d => d.id === ride.driverId);
+            if (!driver) return;
+            
+            const vehicleIcon = ride.type === 'frete' ? '🚛' : '🏍️';
+            const vehicleText = ride.type === 'frete' ? 'Carro frete' : 'Mototáxi';
+            
+            // Navigate to dedicated passenger ride screen
+            showPassengerRideScreen(ride, driver, vehicleIcon, vehicleText);
+            
+            showToast(`🎉 ${driver.name} aceitou sua corrida!`, 'success');
+        }
+
+        function showPassengerRideScreen(ride, driver, vehicleIcon, vehicleText) {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('passenger-ride-screen').classList.remove('hidden');
+            
+            // Update driver information
+            document.getElementById('passenger-driver-icon').textContent = vehicleIcon;
+            document.getElementById('passenger-driver-name').textContent = driver.name;
+            document.getElementById('passenger-driver-phone').textContent = driver.phone;
+            document.getElementById('passenger-vehicle-type').textContent = vehicleText;
+            document.getElementById('passenger-vehicle-color').textContent = driver.vehicleColor;
+            
+            // Store current ride for passenger functions
+            window.currentPassengerRide = ride;
+            window.currentPassengerDriver = driver;
+            
+            // Show arrival confirmation after 15 seconds
+            setTimeout(() => {
+                document.getElementById('passenger-trip-status').textContent = '🎯 Chegando ao destino';
+                document.getElementById('passenger-arrival-section').classList.remove('hidden');
+            }, 15000);
+        }
+
+        function cancelFromWaiting() {
+            const currentRide = appData.rides.find(r => r.status === 'searching' || r.status === 'accepted');
+            if (currentRide) {
+                currentRide.status = 'cancelled';
+                saveData();
+                
+                if (window.searchInterval) {
+                    clearInterval(window.searchInterval);
+                    window.searchInterval = null;
+                }
+            }
+            
+            showHomePage();
+            showToast('Corrida cancelada com sucesso!', 'success');
+        }
+
+        function finishTripFromWaiting() {
+            const currentRide = appData.rides.find(r => r.status === 'accepted');
+            if (currentRide) {
+                currentRide.status = 'completed';
+                currentRide.completedAt = new Date().toISOString();
+                saveData();
+                
+                showToast('Corrida finalizada! Obrigado por usar o Táxi Tapauá!', 'success');
+                showHomePage();
+            }
+        }
+
+        function callDriver() {
+            const currentRide = appData.rides.find(r => r.status === 'accepted');
+            if (currentRide) {
+                const driver = appData.drivers.find(d => d.id === currentRide.driverId);
+                if (driver && driver.phone) {
+                    showToast(`Ligando para ${driver.name}...`, 'info');
+                    // In a real app, this would initiate a phone call
+                    window.open(`tel:${driver.phone}`, '_self');
+                }
+            }
+        }
+
+        function messageDriver() {
+            const currentRide = appData.rides.find(r => r.status === 'accepted');
+            if (currentRide) {
+                const driver = appData.drivers.find(d => d.id === currentRide.driverId);
+                if (driver && driver.phone) {
+                    showToast(`Abrindo WhatsApp para ${driver.name}...`, 'info');
+                    // In a real app, this would open WhatsApp
+                    window.open(`https://wa.me/55${driver.phone.replace(/\D/g, '')}?text=Olá, sou seu passageiro do Táxi Tapauá`, '_blank');
+                }
+            }
+        }
+
+        // Passenger ride screen functions
+        function callDriverFromPassenger() {
+            const driver = window.currentPassengerDriver;
+            if (driver && driver.phone) {
+                showToast(`Ligando para ${driver.name}...`, 'info');
+                window.open(`tel:${driver.phone}`, '_self');
+            }
+        }
+
+        function messageDriverFromPassenger() {
+            const driver = window.currentPassengerDriver;
+            if (driver && driver.phone) {
+                showToast(`Abrindo WhatsApp para ${driver.name}...`, 'info');
+                window.open(`https://wa.me/55${driver.phone.replace(/\D/g, '')}?text=Olá, sou seu passageiro do Táxi Tapauá`, '_blank');
+            }
+        }
+
+        function cancelRideFromPassenger() {
+            const ride = window.currentPassengerRide;
+            if (ride && confirm('Tem certeza que deseja cancelar esta corrida?')) {
+                ride.status = 'cancelled';
+                ride.cancelledAt = new Date().toISOString();
+                ride.cancelledBy = 'passenger';
+                
+                saveRideData(ride).then(() => {
+                    showToast('Corrida cancelada com sucesso!', 'success');
+                    showHomePage();
+                }).catch(error => {
+                    console.error('Erro ao cancelar corrida:', error);
+                    showToast('Erro ao cancelar corrida. Tente novamente.', 'error');
                 });
             }
         }
 
-        // Auto-hide tip after interaction
-        document.addEventListener('click', function() {
-            setTimeout(hideTip, 5000);
-        }, { once: true });
+        function confirmArrivalFromPassenger() {
+            const ride = window.currentPassengerRide;
+            if (ride) {
+                ride.status = 'completed';
+                ride.completedAt = new Date().toISOString();
+                
+                saveRideData(ride).then(() => {
+                    showToast('Corrida finalizada! Obrigado por usar o Táxi Tapauá!', 'success');
+                    
+                    // Clear passenger ride data
+                    window.currentPassengerRide = null;
+                    window.currentPassengerDriver = null;
+                    
+                    // Return to home page
+                    setTimeout(() => {
+                        showHomePage();
+                    }, 2000);
+                }).catch(error => {
+                    console.error('Erro ao finalizar corrida:', error);
+                    showToast('Erro ao finalizar corrida. Tente novamente.', 'error');
+                });
+            }
+        }
+
+        // Driver Functions
+        function registerDriver() {
+            const type = document.getElementById('driver-type').value;
+            const name = document.getElementById('driver-name').value;
+            const cpf = document.getElementById('driver-cpf').value;
+            const phone = document.getElementById('driver-phone').value;
+            const vehicleColor = document.getElementById('vehicle-color').value;
+            
+            if (!type || !name || !phone) {
+                showToast('Por favor, preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+            
+            const driver = {
+                id: generateId(),
+                type: type,
+                name: name,
+                cpf: cpf || 'Não informado',
+                phone: phone,
+                vehicleColor: vehicleColor || 'Não informado',
+                status: 'offline',
+                paymentStatus: 'pending',
+                dailyRides: 0,
+                dailyEarnings: 0,
+                unpaidRides: 0,
+                totalOwed: 0,
+                ridePayments: [],
+                registeredAt: new Date().toISOString()
+            };
+            
+            // Save to Firebase
+            saveDriverData(driver).then(() => {
+                appData.drivers.push(driver);
+                appData.currentUser = driver;
+                localStorage.setItem('current_driver', JSON.stringify(driver));
+                
+                showToast('Cadastro realizado com sucesso!', 'success');
+                showDriverDashboard();
+            }).catch(error => {
+                console.error('Erro ao cadastrar motorista:', error);
+                showToast('Erro ao realizar cadastro. Tente novamente.', 'error');
+            });
+        }
+
+        function showDriverDashboard() {
+            document.getElementById('driver-registration').classList.add('hidden');
+            document.getElementById('driver-dashboard').classList.remove('hidden');
+            updateDriverDashboard();
+        }
+
+        function updateDriverDashboard() {
+            const driver = appData.currentUser;
+            if (!driver) return;
+            
+            // Initialize payment tracking if not exists
+            if (!driver.unpaidRides) driver.unpaidRides = 0;
+            if (!driver.totalOwed) driver.totalOwed = 0;
+            if (!driver.ridePayments) driver.ridePayments = [];
+            
+            document.getElementById('driver-welcome').textContent = `Olá, ${driver.name}!`;
+            if (driver.type === 'frete') {
+                document.getElementById('driver-type-icon').textContent = '🚛';
+                document.getElementById('driver-type-text').textContent = 'Motorista de Carro Frete';
+            } else {
+                document.getElementById('driver-type-icon').textContent = '🏍️';
+                document.getElementById('driver-type-text').textContent = 'Mototaxista';
+            }
+            
+            const paymentDiv = document.getElementById('payment-status');
+            const statusBtn = document.getElementById('status-toggle');
+            
+            // Show optional daily payment section (doesn't block access)
+            paymentDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">💰</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-blue-600 mb-2">Taxa Diária Opcional</h3>
+                    <p class="text-gray-600 mb-4">Contribua com R$ 3,00 para manter o aplicativo funcionando</p>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                        <div class="text-sm text-blue-800">
+                            <div class="font-medium mb-1">💡 Benefícios da contribuição:</div>
+                            <div class="text-xs">• Ajuda a manter o app gratuito</div>
+                            <div class="text-xs">• Suporte técnico prioritário</div>
+                            <div class="text-xs">• Novas funcionalidades</div>
+                        </div>
+                    </div>
+                    <button onclick="makePayment()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                        Contribuir via PIX - R$ 3,00
+                    </button>
+                </div>
+            `;
+            
+            // Always enable work toggle - no blocking
+            statusBtn.disabled = false;
+            if (driver.status === 'online') {
+                statusBtn.className = 'bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-medium transition duration-200';
+                statusBtn.textContent = 'Trabalhando';
+            } else {
+                statusBtn.className = 'bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-medium transition duration-200';
+                statusBtn.textContent = 'Parado';
+            }
+            
+            // Update app payment status (informational only - doesn't block access)
+            document.getElementById('unpaid-rides-count').textContent = driver.unpaidRides || 0;
+            document.getElementById('total-owed').textContent = `R$ ${(driver.totalOwed || 0).toFixed(2)}`;
+            
+            // Hide the entire app payment section if no debt
+            const appPaymentSection = document.getElementById('app-payment-status');
+            if (!driver.totalOwed || driver.totalOwed <= 0) {
+                appPaymentSection.style.display = 'none';
+            } else {
+                appPaymentSection.style.display = 'block';
+            }
+            
+            updateAvailableRides();
+        }
+
+        function makePayment() {
+            showPixPayment('daily', 3.00, 'Taxa Diária');
+        }
+
+        function payAppFees() {
+            // This function is no longer used - payment section is now informational only
+            // Payment will be processed automatically when notification is received
+            showToast('O pagamento será processado automaticamente quando detectado', 'info');
+        }
+
+        function toggleDriverStatus() {
+            const driver = appData.currentUser;
+            
+            if (!driver) {
+                showToast('Erro: dados do motorista não encontrados', 'error');
+                return;
+            }
+            
+            // Request notification permission when going online
+            if (driver.status === 'offline') {
+                requestNotificationPermission();
+            }
+            
+            driver.status = driver.status === 'online' ? 'offline' : 'online';
+            
+            // Save to Firebase
+            saveDriverData(driver).then(() => {
+                const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
+                if (driverIndex !== -1) {
+                    appData.drivers[driverIndex] = driver;
+                }
+                
+                appData.currentUser = driver;
+                localStorage.setItem('current_driver', JSON.stringify(driver));
+                
+                showToast(`${driver.status === 'online' ? '✅ Começou a trabalhar!' : '⏸️ Parou de trabalhar'}`, 'success');
+                updateDriverDashboard();
+                
+                if (driver.status === 'online') {
+                    startListeningForRides();
+                }
+            }).catch(error => {
+                console.error('Erro ao atualizar status:', error);
+                showToast('Erro ao atualizar status. Tente novamente.', 'error');
+            });
+        }
+
+        function startListeningForRides() {
+            setInterval(() => {
+                if (appData.currentUser && appData.currentUser.status === 'online') {
+                    updateAvailableRides();
+                }
+            }, 3000);
+        }
+
+        function updateAvailableRides() {
+            if (!appData.currentUser || appData.currentUser.status !== 'online') {
+                document.getElementById('rides-list').innerHTML = '<p class="text-gray-500 text-center py-8">Clique em "Começar Trabalhar" para receber corridas</p>';
+                document.getElementById('notification-badge').classList.add('hidden');
+                return;
+            }
+            
+            const driverType = appData.currentUser.type;
+            const availableRides = appData.rides.filter(r => 
+                r.status === 'searching' && 
+                r.type === driverType
+            );
+            const ridesList = document.getElementById('rides-list');
+            const notificationBadge = document.getElementById('notification-badge');
+            
+            if (availableRides.length === 0) {
+                ridesList.innerHTML = '<p class="text-gray-500 text-center py-8">Nenhuma corrida disponível</p>';
+                notificationBadge.classList.add('hidden');
+                return;
+            }
+            
+            const currentRideCount = window.lastRideCount || 0;
+            if (availableRides.length > currentRideCount) {
+                notificationBadge.classList.remove('hidden');
+                
+                // Show the new notification window instead of just a toast
+                const newRide = availableRides[0]; // Get the newest ride
+                showDriverNotificationWindow(newRide);
+                
+                // Trigger sound and visual notifications
+                startNotificationAlarm();
+                showVisualNotification(`Nova corrida disponível! De ${newRide.origin} para ${newRide.destination} - R$ ${newRide.price.toFixed(2)}`);
+                
+                // Make the page flash/vibrate
+                document.body.style.backgroundColor = '#FFD700';
+                setTimeout(() => {
+                    document.body.style.backgroundColor = '';
+                }, 500);
+                
+                // Vibrate if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200, 100, 200]);
+                }
+            }
+            window.lastRideCount = availableRides.length;
+            
+            ridesList.innerHTML = availableRides.map(ride => `
+                <div class="border-2 border-taxi-yellow rounded-lg p-4 mb-3 bg-yellow-50">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                <span class="font-medium">${ride.origin}</span>
+                            </div>
+                            <div class="flex items-center mb-3">
+                                <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                                <span class="text-gray-600">${ride.destination}</span>
+                            </div>
+                            <div class="text-xl font-bold text-green-600">R$ ${ride.price.toFixed(2)}</div>
+                        </div>
+                        <button onclick="acceptRide('${ride.id}')" class="gradient-bg text-taxi-dark px-4 py-2 rounded-lg font-bold ml-3 hover:scale-105 transition-transform">
+                            Aceitar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Driver Notification Window Functions
+        let notificationTimer = null;
+        let notificationTimeLeft = 15;
+        let currentNotificationRide = null;
+
+        function showDriverNotificationWindow(ride) {
+            currentNotificationRide = ride;
+            
+            // Update notification content
+            const serviceType = ride.type === 'frete' ? 'Carro Frete' : 'Mototáxi';
+            const netEarnings = ride.price - 1.00; // Subtract app fee
+            
+            document.getElementById('notification-service-type').textContent = serviceType;
+            document.getElementById('notification-passenger-name').textContent = ride.passengerName || 'Passageiro';
+            document.getElementById('notification-passenger-phone').textContent = ride.passengerPhone || 'Não informado';
+            document.getElementById('notification-origin').textContent = ride.origin;
+            document.getElementById('notification-destination').textContent = ride.destination;
+            document.getElementById('notification-price').textContent = `R$ ${netEarnings.toFixed(2)}`;
+            
+            // Show the notification window
+            const notificationWindow = document.getElementById('driver-notification-window');
+            const notificationCard = document.getElementById('notification-card');
+            
+            notificationWindow.classList.remove('hidden');
+            
+            // Animate the card entrance
+            setTimeout(() => {
+                notificationCard.style.transform = 'scale(1)';
+            }, 100);
+            
+            // Start countdown timer
+            startNotificationTimer();
+        }
+
+        function startNotificationTimer() {
+            notificationTimeLeft = 15;
+            document.getElementById('notification-timer').textContent = notificationTimeLeft;
+            
+            if (notificationTimer) {
+                clearInterval(notificationTimer);
+            }
+            
+            notificationTimer = setInterval(() => {
+                notificationTimeLeft--;
+                document.getElementById('notification-timer').textContent = notificationTimeLeft;
+                
+                if (notificationTimeLeft <= 0) {
+                    clearInterval(notificationTimer);
+                    rejectRideFromNotification(); // Auto-reject when time runs out
+                }
+            }, 1000);
+        }
+
+        function hideDriverNotificationWindow() {
+            const notificationWindow = document.getElementById('driver-notification-window');
+            const notificationCard = document.getElementById('notification-card');
+            
+            // Animate the card exit
+            notificationCard.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                notificationWindow.classList.add('hidden');
+                notificationCard.style.transform = 'scale(0.95)'; // Reset for next time
+            }, 200);
+            
+            // Clear timer
+            if (notificationTimer) {
+                clearInterval(notificationTimer);
+                notificationTimer = null;
+            }
+            
+            // Stop notification alarm
+            stopNotificationAlarm();
+            
+            currentNotificationRide = null;
+        }
+
+        function acceptRideFromNotification() {
+            if (!currentNotificationRide) return;
+            
+            const ride = appData.rides.find(r => r.id === currentNotificationRide.id);
+            if (!ride || ride.status !== 'searching') {
+                showToast('Esta corrida não está mais disponível', 'error');
+                hideDriverNotificationWindow();
+                return;
+            }
+            
+            // Accept the ride
+            ride.status = 'accepted';
+            ride.driverId = appData.currentUser.id;
+            ride.driverName = appData.currentUser.name;
+            ride.driverPhone = appData.currentUser.phone;
+            ride.acceptedAt = new Date().toISOString();
+            
+            // Store current ride for trip details
+            window.currentAcceptedRide = ride;
+            
+            // Save to Firebase
+            saveRideData(ride).then(() => {
+                hideDriverNotificationWindow();
+                showToast('Corrida aceita! Redirecionando para detalhes...', 'success');
+                
+                // Navigate to trip details screen
+                setTimeout(() => {
+                    showTripDetailsScreen(ride);
+                }, 1000);
+            }).catch(error => {
+                console.error('Erro ao aceitar corrida:', error);
+                showToast('Erro ao aceitar corrida. Tente novamente.', 'error');
+                hideDriverNotificationWindow();
+            });
+        }
+
+        function rejectRideFromNotification() {
+            hideDriverNotificationWindow();
+            showToast('Corrida recusada', 'info');
+        }
+
+        function callPassengerFromNotification() {
+            if (!currentNotificationRide || !currentNotificationRide.passengerPhone) {
+                showToast('Telefone do passageiro não disponível', 'error');
+                return;
+            }
+            
+            showToast(`Ligando para ${currentNotificationRide.passengerName}...`, 'info');
+            window.open(`tel:${currentNotificationRide.passengerPhone}`, '_self');
+        }
+
+        function messagePassengerFromNotification() {
+            if (!currentNotificationRide || !currentNotificationRide.passengerPhone) {
+                showToast('Telefone do passageiro não disponível', 'error');
+                return;
+            }
+            
+            const cleanPhone = currentNotificationRide.passengerPhone.replace(/\D/g, '');
+            const message = encodeURIComponent(`Olá ${currentNotificationRide.passengerName}! Sou um motorista do Táxi Tapauá. Vi sua corrida de ${currentNotificationRide.origin} para ${currentNotificationRide.destination}. Posso aceitar?`);
+            
+            showToast(`Abrindo WhatsApp para ${currentNotificationRide.passengerName}...`, 'info');
+            window.open(`https://wa.me/55${cleanPhone}?text=${message}`, '_blank');
+        }
+
+        function acceptRide(rideId) {
+            const ride = appData.rides.find(r => r.id === rideId);
+            if (!ride || ride.status !== 'searching') {
+                showToast('Esta corrida não está mais disponível', 'error');
+                return;
+            }
+            
+            // Stop notification alarm when accepting ride
+            stopNotificationAlarm();
+            
+            ride.status = 'accepted';
+            ride.driverId = appData.currentUser.id;
+            ride.driverName = appData.currentUser.name;
+            ride.driverPhone = appData.currentUser.phone;
+            ride.acceptedAt = new Date().toISOString();
+            
+            // Store current ride for trip details
+            window.currentAcceptedRide = ride;
+            
+            // Save to Firebase
+            saveRideData(ride).then(() => {
+                showToast('Corrida aceita! Redirecionando para detalhes...', 'success');
+                
+                // Navigate to trip details screen
+                setTimeout(() => {
+                    showTripDetailsScreen(ride);
+                }, 1000);
+            }).catch(error => {
+                console.error('Erro ao aceitar corrida:', error);
+                showToast('Erro ao aceitar corrida. Tente novamente.', 'error');
+            });
+        }
+
+        function finishRide() {
+            const currentRide = appData.rides.find(r => r.status === 'accepted' && r.driverId === appData.currentUser.id);
+            if (currentRide) {
+                currentRide.status = 'completed';
+                currentRide.completedAt = new Date().toISOString();
+                
+                // Add ride payment tracking
+                appData.currentUser.dailyRides++;
+                appData.currentUser.dailyEarnings += (currentRide.price - 1.00);
+                
+                // Initialize payment tracking if not exists
+                if (!appData.currentUser.ridePayments) {
+                    appData.currentUser.ridePayments = [];
+                }
+                if (!appData.currentUser.unpaidRides) {
+                    appData.currentUser.unpaidRides = 0;
+                }
+                if (!appData.currentUser.totalOwed) {
+                    appData.currentUser.totalOwed = 0;
+                }
+                
+                // Add R$1 debt for this ride
+                appData.currentUser.unpaidRides++;
+                appData.currentUser.totalOwed += 1.00;
+                appData.currentUser.ridePayments.push({
+                    rideId: currentRide.id,
+                    amount: 1.00,
+                    date: new Date().toISOString(),
+                    paid: false
+                });
+                
+                const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
+                if (driverIndex !== -1) {
+                    appData.drivers[driverIndex] = appData.currentUser;
+                }
+                
+                localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
+                saveData();
+                
+                document.getElementById('current-ride').classList.add('hidden');
+                showToast('Corrida finalizada! R$ 1,00 adicionado à sua conta do app.', 'success');
+                updateDriverDashboard();
+            }
+        }
+
+        // Admin Functions
+        function adminLogin() {
+            const password = document.getElementById('admin-password').value;
+            if (password === appData.adminPassword) {
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                updateAdminDashboard();
+                showToast('Login realizado com sucesso!', 'success');
+            } else {
+                showToast('Senha incorreta!', 'error');
+            }
+        }
+
+        function updateAdminDashboard() {
+            const totalDrivers = appData.drivers.length;
+            const onlineDrivers = appData.drivers.filter(d => d.status === 'online').length;
+            const activeRides = appData.rides.filter(r => r.status === 'searching' || r.status === 'accepted').length;
+            const totalEarnings = appData.rides.filter(r => r.status === 'completed').reduce((sum, r) => sum + 1.00, 0);
+            
+            document.getElementById('total-drivers').textContent = totalDrivers;
+            document.getElementById('online-drivers').textContent = onlineDrivers;
+            document.getElementById('active-rides').textContent = activeRides;
+            document.getElementById('total-earnings').textContent = `R$ ${totalEarnings.toFixed(0)}`;
+            
+            const driversList = document.getElementById('drivers-list');
+            if (appData.drivers.length === 0) {
+                driversList.innerHTML = '<p class="text-gray-500 text-center py-8">Nenhum motorista cadastrado</p>';
+                return;
+            }
+            
+            driversList.innerHTML = appData.drivers.map(driver => {
+                // Check if daily payment is overdue
+                const today = new Date();
+                const lastPayment = driver.lastDailyPayment ? new Date(driver.lastDailyPayment) : null;
+                const isPaymentOverdue = !lastPayment || (today - lastPayment) > (24 * 60 * 60 * 1000);
+                
+                // Initialize payment tracking if not exists
+                const unpaidRides = driver.unpaidRides || 0;
+                const totalOwed = driver.totalOwed || 0;
+                
+                let paymentStatusText = '';
+                let paymentStatusColor = '';
+                let accessStatus = '';
+                
+                if (driver.paymentStatus === 'paid') {
+                    paymentStatusText = '✅ Contribuiu Hoje';
+                    paymentStatusColor = 'text-green-600';
+                    accessStatus = '✅ Ativo';
+                } else {
+                    paymentStatusText = '💰 Contribuição Opcional';
+                    paymentStatusColor = 'text-blue-600';
+                    accessStatus = '✅ Ativo';
+                }
+                
+                return `
+                    <div class="border rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-taxi-yellow rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-lg">${driver.type === 'frete' ? '🚛' : '🏍️'}</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">${driver.name}</div>
+                                    <div class="text-sm text-gray-600">${driver.phone} • ${driver.vehicleColor}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium ${driver.status === 'online' ? 'text-green-600' : 'text-gray-500'}">
+                                    ${driver.status === 'online' ? '🟢 Online' : '⚫ Offline'}
+                                </div>
+                                <div class="text-xs ${paymentStatusColor}">
+                                    ${paymentStatusText}
+                                </div>
+                                <div class="text-xs font-medium text-green-600">
+                                    ${accessStatus}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${unpaidRides > 0 || totalOwed > 0 ? `
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
+                                <div class="text-sm text-yellow-800">
+                                    <div class="font-medium mb-1">💳 Débitos do Aplicativo:</div>
+                                    <div class="flex justify-between">
+                                        <span>Corridas não pagas:</span>
+                                        <span class="font-bold">${unpaidRides}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Total devido:</span>
+                                        <span class="font-bold">R$ ${totalOwed.toFixed(2)}</span>
+                                    </div>
+                                    <div class="text-xs mt-2 text-yellow-700">
+                                        ℹ️ Informativo apenas - não bloqueia o acesso
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Notification Functions
+        let notificationAudio = null;
+        let notificationInterval = null;
+        let audioContext = null;
+        let backgroundAlarmInterval = null;
+
+        function initNotificationSound() {
+            try {
+                // Initialize audio context if not exists
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // Resume audio context if suspended (required for background play)
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                function createLoudAlarmSound() {
+                    const oscillator1 = audioContext.createOscillator();
+                    const oscillator2 = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    // Create two oscillators for a more complex alarm sound
+                    oscillator1.connect(gainNode);
+                    oscillator2.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    // High and low frequency alternating alarm
+                    oscillator1.frequency.value = 1000; // High pitch
+                    oscillator2.frequency.value = 600;  // Lower pitch
+                    oscillator1.type = 'square'; // More aggressive sound
+                    oscillator2.type = 'square';
+                    
+                    // Much louder volume (0.8 instead of 0.3)
+                    gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
+                    
+                    // Longer duration (2 seconds instead of 0.5)
+                    const duration = 2.0;
+                    
+                    // Create alternating pattern
+                    oscillator1.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    oscillator1.frequency.setValueAtTime(800, audioContext.currentTime + 0.3);
+                    oscillator1.frequency.setValueAtTime(1000, audioContext.currentTime + 0.6);
+                    oscillator1.frequency.setValueAtTime(800, audioContext.currentTime + 0.9);
+                    oscillator1.frequency.setValueAtTime(1000, audioContext.currentTime + 1.2);
+                    oscillator1.frequency.setValueAtTime(800, audioContext.currentTime + 1.5);
+                    
+                    oscillator2.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator2.frequency.setValueAtTime(500, audioContext.currentTime + 0.3);
+                    oscillator2.frequency.setValueAtTime(600, audioContext.currentTime + 0.6);
+                    oscillator2.frequency.setValueAtTime(500, audioContext.currentTime + 0.9);
+                    oscillator2.frequency.setValueAtTime(600, audioContext.currentTime + 1.2);
+                    oscillator2.frequency.setValueAtTime(500, audioContext.currentTime + 1.5);
+                    
+                    // Fade out at the end
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                    
+                    oscillator1.start(audioContext.currentTime);
+                    oscillator2.start(audioContext.currentTime);
+                    oscillator1.stop(audioContext.currentTime + duration);
+                    oscillator2.stop(audioContext.currentTime + duration);
+                }
+                
+                return createLoudAlarmSound;
+            } catch (error) {
+                console.log('Could not initialize audio:', error);
+                return null;
+            }
+        }
+
+        function playNotificationSound() {
+            try {
+                const alarmSound = initNotificationSound();
+                if (alarmSound) {
+                    alarmSound();
+                }
+            } catch (error) {
+                console.log('Could not play notification sound:', error);
+            }
+        }
+
+        function startNotificationAlarm() {
+            if (notificationInterval) {
+                clearInterval(notificationInterval);
+            }
+            if (backgroundAlarmInterval) {
+                clearInterval(backgroundAlarmInterval);
+            }
+            
+            // Play sound every 3 seconds for 30 seconds (much longer)
+            let playCount = 0;
+            const maxPlays = 10; // 30 seconds total
+            
+            notificationInterval = setInterval(() => {
+                playNotificationSound();
+                playCount++;
+                
+                if (playCount >= maxPlays) {
+                    clearInterval(notificationInterval);
+                    notificationInterval = null;
+                }
+            }, 3000);
+            
+            // Play first alarm immediately
+            playNotificationSound();
+            
+            // Background alarm - continues even when tab is not active
+            startBackgroundAlarm();
+        }
+
+        function startBackgroundAlarm() {
+            // Use a separate interval for background notifications
+            let backgroundPlayCount = 0;
+            const maxBackgroundPlays = 15; // 45 seconds total
+            
+            backgroundAlarmInterval = setInterval(() => {
+                // Force audio context resume for background play
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        playNotificationSound();
+                    });
+                } else {
+                    playNotificationSound();
+                }
+                
+                // Also trigger browser notification
+                showVisualNotification('🚨 NOVA CORRIDA DISPONÍVEL! Toque para ver detalhes.');
+                
+                // Vibrate if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate([300, 200, 300, 200, 300]);
+                }
+                
+                backgroundPlayCount++;
+                
+                if (backgroundPlayCount >= maxBackgroundPlays) {
+                    clearInterval(backgroundAlarmInterval);
+                    backgroundAlarmInterval = null;
+                }
+            }, 3000);
+        }
+
+        function stopNotificationAlarm() {
+            if (notificationInterval) {
+                clearInterval(notificationInterval);
+                notificationInterval = null;
+            }
+            if (backgroundAlarmInterval) {
+                clearInterval(backgroundAlarmInterval);
+                backgroundAlarmInterval = null;
+            }
+        }
+
+        // Keep audio context active for background play
+        function keepAudioContextActive() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Resume audio context when page becomes visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                keepAudioContextActive();
+            }
+        });
+
+        // Resume audio context on user interaction
+        document.addEventListener('click', keepAudioContextActive);
+        document.addEventListener('touchstart', keepAudioContextActive);
+
+        function showVisualNotification(message) {
+            // Request permission for browser notifications
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("Táxi Tapauá - Nova Corrida!", {
+                    body: message,
+                    icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRDcwMCI+PHBhdGggZD0iTTE4LjkyIDYuMDFDMTguNzIgNS40MiAxOC4xNiA1IDE3LjUgNWgtMTFjLS42NiAwLTEuMjIuNDItMS40MiAxLjAxTDMgMTJ2OGMwIC41NS40NSAxIDEgMWgxYy41NSAwIDEtLjQ1IDEtMXYtMWgxMnYxYzAgLjU1LjQ1IDEgMSAxaDFjLjU1IDAgMS0uNDUgMS0xdi04bC0yLjA4LTUuOTl6TTYuNSAxNmMtLjgzIDAtMS41LS42Ny0xLjUtMS41UzUuNjcgMTMgNi41IDEzczEuNS42NyAxLjUgMS41UzcuMzMgMTYgNi41IDE2em0xMSAwYy0uODMgMC0xLjUtLjY3LTEuNS0xLjVzLjY3LTEuNSAxLjUtMS41IDEuNS42NyAxLjUgMS41LS42NyAxLjUtMS41IDEuNXpNNSAxMWwxLjUtNC41aDExTDE5IDExSDV6Ii8+PC9zdmc+",
+                    requireInteraction: true
+                });
+            }
+        }
+
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        }
+
+        // Voice Recording Functions
+        let recognition = null;
+        let isRecording = false;
+
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'pt-BR';
+                return true;
+            }
+            return false;
+        }
+
+        function startVoiceRecording(field) {
+            if (!initSpeechRecognition()) {
+                showToast('Gravação de voz não suportada neste navegador', 'error');
+                return;
+            }
+
+            if (isRecording) {
+                stopVoiceRecording();
+                return;
+            }
+
+            const button = document.getElementById(`${field}-voice-btn`);
+            const input = document.getElementById(`${field}-input`);
+            
+            isRecording = true;
+            button.innerHTML = `
+                <svg class="w-5 h-5 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="8"/>
+                </svg>
+            `;
+            
+            showToast('🎤 Gravando... Fale agora!', 'info');
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                input.value = transcript;
+                showToast('✅ Gravação concluída!', 'success');
+                stopVoiceRecording();
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Erro na gravação:', event.error);
+                showToast('Erro na gravação. Tente novamente.', 'error');
+                stopVoiceRecording();
+            };
+
+            recognition.onend = function() {
+                stopVoiceRecording();
+            };
+
+            try {
+                recognition.start();
+            } catch (error) {
+                showToast('Erro ao iniciar gravação', 'error');
+                stopVoiceRecording();
+            }
+        }
+
+        function stopVoiceRecording() {
+            isRecording = false;
+            
+            if (recognition) {
+                recognition.stop();
+            }
+            
+            // Reset both buttons
+            ['origin', 'destination'].forEach(field => {
+                const button = document.getElementById(`${field}-voice-btn`);
+                if (button) {
+                    button.innerHTML = `
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                    `;
+                }
+            });
+        }
+
+        // CPF Formatting
+        function formatCPF(value) {
+            return value
+                .replace(/\D/g, '')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+                .replace(/(-\d{2})\d+?$/, '$1');
+        }
+
+        // PIX Payment Functions
+        let currentPixPayment = null;
+
+        function showPixPayment(type, amount, description) {
+            currentPixPayment = { 
+                type, 
+                amount, 
+                description,
+                simulatedDetectionTime: 172800000 // 172800 seconds (48 hours)
+            };
+            
+            document.getElementById('pix-title').textContent = description;
+            document.getElementById('pix-amount').textContent = `R$ ${amount.toFixed(2)}`;
+            document.getElementById('pix-description').textContent = 'Escaneie o QR Code ou copie a chave PIX';
+            
+            document.getElementById('pix-modal').classList.remove('hidden');
+            
+            // Start automatic payment detection
+            setTimeout(() => {
+                startAutomaticPaymentDetection(currentPixPayment);
+            }, 1000);
+        }
+
+        function closePixModal() {
+            // Stop automatic payment detection
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+                paymentCheckInterval = null;
+            }
+            
+            // Remove payment status div if exists
+            const pixModal = document.getElementById('pix-modal');
+            const existingStatus = pixModal.querySelector('.payment-status');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            document.getElementById('pix-modal').classList.add('hidden');
+            currentPixPayment = null;
+        }
+
+        function copyPixKey() {
+            const pixKey = document.getElementById('pix-key').textContent;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(pixKey).then(() => {
+                    showToast('Chave PIX copiada! Verificação automática iniciada.', 'success');
+                    
+                    // If detection hasn't started yet, start it now
+                    if (!paymentCheckInterval && currentPixPayment) {
+                        startAutomaticPaymentDetection(currentPixPayment);
+                    }
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(pixKey);
+                });
+            } else {
+                fallbackCopyTextToClipboard(pixKey);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('Chave PIX copiada! Verificação automática iniciada.', 'success');
+                
+                // If detection hasn't started yet, start it now
+                if (!paymentCheckInterval && currentPixPayment) {
+                    startAutomaticPaymentDetection(currentPixPayment);
+                }
+            } catch (err) {
+                showToast('Erro ao copiar chave PIX', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function confirmPixPayment() {
+            if (!currentPixPayment) return;
+            
+            showToast('Processando confirmação do pagamento...', 'info');
+            
+            setTimeout(() => {
+                if (currentPixPayment.type === 'daily') {
+                    // Process daily payment
+                    appData.currentUser.paymentStatus = 'paid';
+                    appData.currentUser.lastDailyPayment = new Date().toISOString();
+                    
+                    const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
+                    if (driverIndex !== -1) {
+                        appData.drivers[driverIndex] = appData.currentUser;
+                    }
+                    
+                    localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
+                    saveData();
+                    
+                    showToast('Taxa diária paga com sucesso!', 'success');
+                    
+                } else if (currentPixPayment.type === 'app') {
+                    // Process app payment
+                    const driver = appData.currentUser;
+                    
+                    if (driver.ridePayments) {
+                        driver.ridePayments.forEach(payment => {
+                            payment.paid = true;
+                            payment.paidAt = new Date().toISOString();
+                        });
+                    }
+                    
+                    driver.unpaidRides = 0;
+                    driver.totalOwed = 0;
+                    driver.lastAppPayment = new Date().toISOString();
+                    
+                    const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
+                    if (driverIndex !== -1) {
+                        appData.drivers[driverIndex] = driver;
+                    }
+                    
+                    localStorage.setItem('current_driver', JSON.stringify(driver));
+                    saveData();
+                    
+                    showToast('Pagamento do aplicativo realizado com sucesso!', 'success');
+                }
+                
+                closePixModal();
+                updateDriverDashboard();
+            }, 2000);
+        }
+
+        // Automatic Payment Detection System
+        let paymentCheckInterval = null;
+        let paymentStartTime = null;
+
+        function startAutomaticPaymentDetection(paymentData) {
+            paymentStartTime = Date.now();
+            
+            // Clear any existing interval
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+            }
+            
+            // Show automatic detection message
+            showToast('🔍 Verificando pagamento automaticamente...', 'info');
+            
+            // Update modal to show automatic detection
+            const pixModal = document.getElementById('pix-modal');
+            const existingStatus = pixModal.querySelector('.payment-status');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'payment-status bg-blue-50 rounded-xl p-4 mb-4';
+            statusDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="text-blue-600 mb-2">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    </div>
+                    <div class="text-sm font-medium text-blue-800 mb-1">Verificação Automática Ativa</div>
+                    <div class="text-xs text-blue-600" id="detection-status">Aguardando confirmação do pagamento...</div>
+                </div>
+            `;
+            
+            // Insert before the action buttons
+            const actionButtons = pixModal.querySelector('.space-y-3');
+            actionButtons.parentNode.insertBefore(statusDiv, actionButtons);
+            
+            // Start checking for payment every 3 seconds
+            paymentCheckInterval = setInterval(() => {
+                checkPaymentStatus(paymentData);
+            }, 3000);
+            
+            // Auto-timeout after 5 minutes
+            setTimeout(() => {
+                if (paymentCheckInterval) {
+                    clearInterval(paymentCheckInterval);
+                    paymentCheckInterval = null;
+                    updateDetectionStatus('Tempo limite atingido. Clique em "Já Paguei" se o pagamento foi realizado.', 'warning');
+                }
+            }, 300000); // 5 minutes
+        }
+
+        function checkPaymentStatus(paymentData) {
+            const elapsedTime = Date.now() - paymentStartTime;
+            const elapsedSeconds = Math.floor(elapsedTime / 1000);
+            
+            // Update status message
+            updateDetectionStatus(`Verificando... (${elapsedSeconds}s)`, 'checking');
+            
+            // Simulate payment detection after random time (15-45 seconds)
+            const detectionTime = paymentData.simulatedDetectionTime || (15000 + Math.random() * 30000);
+            
+            if (elapsedTime >= detectionTime) {
+                // Payment detected!
+                clearInterval(paymentCheckInterval);
+                paymentCheckInterval = null;
+                
+                updateDetectionStatus('✅ Pagamento detectado!', 'success');
+                
+                // Process payment automatically
+                setTimeout(() => {
+                    processAutomaticPayment(paymentData);
+                }, 1500);
+            }
+        }
+
+        function updateDetectionStatus(message, type) {
+            const statusElement = document.getElementById('detection-status');
+            if (statusElement) {
+                statusElement.textContent = message;
+                
+                const statusDiv = statusElement.closest('.payment-status');
+                if (type === 'success') {
+                    statusDiv.className = 'payment-status bg-green-50 rounded-xl p-4 mb-4';
+                    statusDiv.querySelector('.text-blue-600').className = 'text-green-600 mb-2';
+                    statusDiv.querySelector('.text-blue-800').className = 'text-sm font-medium text-green-800 mb-1';
+                    statusDiv.querySelector('.text-blue-600:last-child').className = 'text-xs text-green-600';
+                } else if (type === 'warning') {
+                    statusDiv.className = 'payment-status bg-yellow-50 rounded-xl p-4 mb-4';
+                    statusDiv.querySelector('.text-blue-600').className = 'text-yellow-600 mb-2';
+                    statusDiv.querySelector('.text-blue-800').className = 'text-sm font-medium text-yellow-800 mb-1';
+                    statusDiv.querySelector('.text-blue-600:last-child').className = 'text-xs text-yellow-600';
+                }
+            }
+        }
+
+        function processAutomaticPayment(paymentData) {
+            showToast('🎉 Pagamento confirmado automaticamente!', 'success');
+            
+            if (paymentData.type === 'daily') {
+                // Process daily payment
+                appData.currentUser.paymentStatus = 'paid';
+                appData.currentUser.lastDailyPayment = new Date().toISOString();
+                
+                // Save to Firebase
+                saveDriverData(appData.currentUser).then(() => {
+                    const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
+                    if (driverIndex !== -1) {
+                        appData.drivers[driverIndex] = appData.currentUser;
+                    }
+                    
+                    localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
+                    showToast('✅ Taxa diária paga! Você já pode trabalhar!', 'success');
+                }).catch(error => {
+                    console.error('Erro ao processar pagamento:', error);
+                    showToast('Erro ao processar pagamento. Tente novamente.', 'error');
+                });
+                
+            } else if (paymentData.type === 'app') {
+                // Process app payment
+                const driver = appData.currentUser;
+                
+                if (driver.ridePayments) {
+                    driver.ridePayments.forEach(payment => {
+                        payment.paid = true;
+                        payment.paidAt = new Date().toISOString();
+                    });
+                }
+                
+                driver.unpaidRides = 0;
+                driver.totalOwed = 0;
+                driver.lastAppPayment = new Date().toISOString();
+                
+                // Save to Firebase
+                saveDriverData(driver).then(() => {
+                    const driverIndex = appData.drivers.findIndex(d => d.id === driver.id);
+                    if (driverIndex !== -1) {
+                        appData.drivers[driverIndex] = driver;
+                    }
+                    
+                    localStorage.setItem('current_driver', JSON.stringify(driver));
+                    showToast('✅ Débito do aplicativo quitado!', 'success');
+                }).catch(error => {
+                    console.error('Erro ao processar pagamento:', error);
+                    showToast('Erro ao processar pagamento. Tente novamente.', 'error');
+                });
+            }
+            
+            // Close modal and update dashboard
+            setTimeout(() => {
+                closePixModal();
+                updateDriverDashboard();
+            }, 2000);
+        }
+
+        // Trip Details Functions
+        let tripTimer = null;
+        let tripStartTime = null;
+
+        function showTripDetailsScreen(ride) {
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('trip-details-page').classList.remove('hidden');
+            
+            // Update trip details
+            document.getElementById('trip-origin').textContent = ride.origin;
+            document.getElementById('trip-destination').textContent = ride.destination;
+            document.getElementById('trip-price').textContent = `R$ ${ride.price.toFixed(2)}`;
+            
+            // Reset trip state
+            document.getElementById('pickup-btn').classList.remove('hidden');
+            document.getElementById('complete-btn').classList.add('hidden');
+            
+            // Reset progress steps
+            updateTripStep('pickup');
+            
+            // Start trip timer
+            startTripTimer();
+            
+            showToast('Dirija-se ao local de partida para buscar o passageiro', 'info');
+        }
+
+        function backToDriverDashboard() {
+            // Stop trip timer
+            if (tripTimer) {
+                clearInterval(tripTimer);
+                tripTimer = null;
+            }
+            
+            document.querySelectorAll('[id$="-page"], [id$="-login"], [id$="-dashboard"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('driver-page').classList.remove('hidden');
+            updateDriverDashboard();
+        }
+
+        function updateTripStep(currentStep) {
+            // Reset all steps
+            ['pickup', 'transport', 'complete'].forEach(step => {
+                const element = document.getElementById(`step-${step}`);
+                element.className = 'flex items-center text-sm opacity-50';
+                element.querySelector('.w-6').className = 'w-6 h-6 bg-gray-300 text-white rounded-full flex items-center justify-center mr-3 text-xs font-bold';
+            });
+            
+            // Update current and completed steps
+            const steps = ['pickup', 'transport', 'complete'];
+            const currentIndex = steps.indexOf(currentStep);
+            
+            for (let i = 0; i <= currentIndex; i++) {
+                const element = document.getElementById(`step-${steps[i]}`);
+                if (i === currentIndex) {
+                    element.className = 'flex items-center text-sm';
+                    element.querySelector('.w-6').className = 'w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-xs font-bold';
+                    element.querySelector('span').className = 'font-medium text-blue-600';
+                } else {
+                    element.className = 'flex items-center text-sm';
+                    element.querySelector('.w-6').className = 'w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center mr-3 text-xs font-bold';
+                    element.querySelector('span').className = 'font-medium text-green-600';
+                }
+            }
+        }
+
+        function startTripTimer() {
+            tripStartTime = Date.now();
+            
+            if (tripTimer) {
+                clearInterval(tripTimer);
+            }
+            
+            tripTimer = setInterval(() => {
+                const elapsed = Date.now() - tripStartTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                
+                document.getElementById('trip-timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function confirmPickup() {
+            const ride = window.currentAcceptedRide;
+            if (!ride) return;
+            
+            // Update trip status
+            document.getElementById('trip-status-icon').textContent = '🚗';
+            document.getElementById('trip-status-title').textContent = 'Passageiro a Bordo';
+            document.getElementById('trip-status-description').textContent = 'Dirija-se ao destino';
+            
+            // Update progress
+            updateTripStep('transport');
+            
+            // Switch buttons
+            document.getElementById('pickup-btn').classList.add('hidden');
+            document.getElementById('complete-btn').classList.remove('hidden');
+            
+            showToast('Passageiro confirmado! Dirija-se ao destino.', 'success');
+        }
+
+        function completeTripFromDetails() {
+            const ride = window.currentAcceptedRide;
+            if (!ride) return;
+            
+            // Update trip status
+            document.getElementById('trip-status-icon').textContent = '✅';
+            document.getElementById('trip-status-title').textContent = 'Corrida Finalizada!';
+            document.getElementById('trip-status-description').textContent = 'Obrigado por usar o Táxi Tapauá';
+            
+            // Update progress
+            updateTripStep('complete');
+            
+            // Process ride completion
+            ride.status = 'completed';
+            ride.completedAt = new Date().toISOString();
+            
+            // Add ride payment tracking
+            appData.currentUser.dailyRides++;
+            appData.currentUser.dailyEarnings += (ride.price - 1.00);
+            
+            // Initialize payment tracking if not exists
+            if (!appData.currentUser.ridePayments) {
+                appData.currentUser.ridePayments = [];
+            }
+            if (!appData.currentUser.unpaidRides) {
+                appData.currentUser.unpaidRides = 0;
+            }
+            if (!appData.currentUser.totalOwed) {
+                appData.currentUser.totalOwed = 0;
+            }
+            
+            // Add R$1 debt for this ride
+            appData.currentUser.unpaidRides++;
+            appData.currentUser.totalOwed += 1.00;
+            appData.currentUser.ridePayments.push({
+                rideId: ride.id,
+                amount: 1.00,
+                date: new Date().toISOString(),
+                paid: false
+            });
+            
+            // Save both ride and driver data to Firebase
+            Promise.all([
+                saveRideData(ride),
+                saveDriverData(appData.currentUser)
+            ]).then(() => {
+                const driverIndex = appData.drivers.findIndex(d => d.id === appData.currentUser.id);
+                if (driverIndex !== -1) {
+                    appData.drivers[driverIndex] = appData.currentUser;
+                }
+                
+                localStorage.setItem('current_driver', JSON.stringify(appData.currentUser));
+                
+                showToast('Corrida finalizada! R$ 1,00 adicionado à sua conta do app.', 'success');
+                
+                // Return to dashboard immediately
+                setTimeout(() => {
+                    backToDriverDashboard();
+                }, 1500);
+            }).catch(error => {
+                console.error('Erro ao finalizar corrida:', error);
+                showToast('Erro ao finalizar corrida. Tente novamente.', 'error');
+            });
+        }
+
+        function cancelTripFromDetails() {
+            const ride = window.currentAcceptedRide;
+            if (!ride) return;
+            
+            if (confirm('Tem certeza que deseja cancelar esta corrida?')) {
+                ride.status = 'cancelled';
+                ride.cancelledAt = new Date().toISOString();
+                ride.cancelledBy = 'driver';
+                
+                saveData();
+                showToast('Corrida cancelada.', 'info');
+                backToDriverDashboard();
+            }
+        }
+
+        function callPassenger() {
+            showToast('Ligando para o passageiro...', 'info');
+            // In a real app, this would initiate a phone call
+            // For demo purposes, we'll just show a message
+            setTimeout(() => {
+                showToast('📞 Chamada iniciada', 'success');
+            }, 1000);
+        }
+
+        function messagePassenger() {
+            showToast('Abrindo WhatsApp...', 'info');
+            // In a real app, this would open WhatsApp
+            const message = encodeURIComponent('Olá! Sou seu motorista do Táxi Tapauá. Estou a caminho!');
+            window.open(`https://wa.me/5511999999999?text=${message}`, '_blank');
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Firebase listeners
+            initializeFirebaseListeners();
+            
+            // Load initial data from Firebase
+            Promise.all([loadDrivers(), loadRides()]).then(() => {
+                console.log('Dados carregados do Firebase');
+                
+                // Check if passenger is already logged in
+                const savedPassenger = localStorage.getItem('current_passenger');
+                if (savedPassenger) {
+                    appData.currentPassenger = JSON.parse(savedPassenger);
+                    document.getElementById('welcome-message').textContent = `Olá, ${appData.currentPassenger.name.split(' ')[0]}!`;
+                    showHomePage();
+                } else {
+                    showLoginPage();
+                }
+                
+                // Check if driver is already logged in
+                const savedDriver = localStorage.getItem('current_driver');
+                if (savedDriver) {
+                    const driverData = JSON.parse(savedDriver);
+                    // Find updated driver data from Firebase
+                    const updatedDriver = appData.drivers.find(d => d.id === driverData.id);
+                    if (updatedDriver) {
+                        appData.currentUser = updatedDriver;
+                        localStorage.setItem('current_driver', JSON.stringify(updatedDriver));
+                    }
+                }
+            }).catch(error => {
+                console.error('Erro ao carregar dados:', error);
+                showToast('Erro ao conectar com o servidor. Alguns recursos podem não funcionar.', 'error');
+                
+                // Fallback to localStorage if Firebase fails
+                appData.drivers = JSON.parse(localStorage.getItem('taxi_drivers') || '[]');
+                appData.rides = JSON.parse(localStorage.getItem('taxi_rides') || '[]');
+                
+                // Check if passenger is already logged in
+                const savedPassenger = localStorage.getItem('current_passenger');
+                if (savedPassenger) {
+                    appData.currentPassenger = JSON.parse(savedPassenger);
+                    document.getElementById('welcome-message').textContent = `Olá, ${appData.currentPassenger.name.split(' ')[0]}!`;
+                    showHomePage();
+                } else {
+                    showLoginPage();
+                }
+            });
+            
+            // Request notification permission on load
+            requestNotificationPermission();
+            
+            // Add CPF formatting
+            const cpfInput = document.getElementById('driver-cpf');
+            if (cpfInput) {
+                cpfInput.addEventListener('input', function(e) {
+                    e.target.value = formatCPF(e.target.value);
+                });
+            }
+            
+            // Add phone formatting for passenger
+            const passengerPhoneInput = document.getElementById('passenger-phone');
+            if (passengerPhoneInput) {
+                passengerPhoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length <= 11) {
+                        value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                        value = value.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
+                    }
+                    e.target.value = value;
+                });
+            }
+        });
+
+        // Initialize Firebase real-time listeners
+        function initializeFirebaseListeners() {
+            // Listen to rides changes
+            listenToRides((rides) => {
+                // Update available rides for drivers
+                if (appData.currentUser && appData.currentUser.status === 'online') {
+                    updateAvailableRides();
+                }
+                
+                // Check for ride status changes for passengers
+                if (window.currentRideId) {
+                    const currentRide = rides.find(r => r.id === window.currentRideId);
+                    if (currentRide && currentRide.status === 'accepted' && !document.getElementById('driver-found-card').classList.contains('hidden') === false) {
+                        showDriverFound(currentRide);
+                    }
+                }
+            });
+            
+            // Listen to drivers changes for admin dashboard
+            listenToDrivers((drivers) => {
+                if (document.getElementById('admin-dashboard').classList.contains('hidden') === false) {
+                    updateAdminDashboard();
+                }
+            });
+        }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95b943a8f15d2912',t:'MTc1MTkxMTQ2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95b98a785730e83a',t:'MTc1MTkxNDM2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

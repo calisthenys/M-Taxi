@@ -659,7 +659,35 @@
     </div>
 
     <div class="saved-skins-section">
-        <h3>💾 Skins Favoritas</h3>
+        <h3>⚽ Times Brasileiros</h3>
+        <div class="skins-scroll" id="footballTeamsContainer">
+            <div class="skin-preview" onclick="loadFootballTeam('flamengo')" title="Flamengo">🔴⚫</div>
+            <div class="skin-preview" onclick="loadFootballTeam('palmeiras')" title="Palmeiras">🟢⚪</div>
+            <div class="skin-preview" onclick="loadFootballTeam('corinthians')" title="Corinthians">⚫⚪</div>
+            <div class="skin-preview" onclick="loadFootballTeam('santos')" title="Santos">⚪⚫</div>
+            <div class="skin-preview" onclick="loadFootballTeam('saopaulo')" title="São Paulo">🔴⚪</div>
+            <div class="skin-preview" onclick="loadFootballTeam('vasco')" title="Vasco">⚫⚪</div>
+            <div class="skin-preview" onclick="loadFootballTeam('gremio')" title="Grêmio">🔵⚪</div>
+            <div class="skin-preview" onclick="loadFootballTeam('internacional')" title="Internacional">🔴⚪</div>
+        </div>
+    </div>
+
+    <div class="saved-skins-section">
+        <h3>🎮 Personagens de Games</h3>
+        <div class="skins-scroll" id="gameCharactersContainer">
+            <div class="skin-preview" onclick="loadGameCharacter('mario')" title="Mario">🍄</div>
+            <div class="skin-preview" onclick="loadGameCharacter('luigi')" title="Luigi">🟢</div>
+            <div class="skin-preview" onclick="loadGameCharacter('link')" title="Link">🗡️</div>
+            <div class="skin-preview" onclick="loadGameCharacter('sonic')" title="Sonic">💙</div>
+            <div class="skin-preview" onclick="loadGameCharacter('steve')" title="Steve">⛏️</div>
+            <div class="skin-preview" onclick="loadGameCharacter('alex')" title="Alex">👩</div>
+            <div class="skin-preview" onclick="loadGameCharacter('creeper')" title="Creeper">💚</div>
+            <div class="skin-preview" onclick="loadGameCharacter('enderman')" title="Enderman">⚫</div>
+        </div>
+    </div>
+
+    <div class="saved-skins-section">
+        <h3>💾 Suas Criações</h3>
         <div class="skins-scroll" id="savedSkinsContainer">
             <div class="skin-preview" onclick="loadPresetSkin('warrior')" title="Guerreiro">⚔️</div>
             <div class="skin-preview" onclick="loadPresetSkin('mage')" title="Mago">🧙</div>
@@ -949,38 +977,265 @@
             }
         }
 
+        function loadFootballTeam(team) {
+            const teams = {
+                flamengo: {
+                    skin: '#E0AC69',
+                    hair: '#8B4513',
+                    eyes: '#000000',
+                    shirt: '#DC143C',
+                    pants: '#000000',
+                    accessory: 'transparent'
+                },
+                palmeiras: {
+                    skin: '#FDBCB4',
+                    hair: '#8B4513',
+                    eyes: '#228B22',
+                    shirt: '#228B22',
+                    pants: '#FFFFFF',
+                    accessory: 'transparent'
+                },
+                corinthians: {
+                    skin: '#F1C27D',
+                    hair: '#000000',
+                    eyes: '#000000',
+                    shirt: '#FFFFFF',
+                    pants: '#000000',
+                    accessory: 'transparent'
+                },
+                santos: {
+                    skin: '#E0AC69',
+                    hair: '#000000',
+                    eyes: '#8B4513',
+                    shirt: '#FFFFFF',
+                    pants: '#000000',
+                    accessory: 'transparent'
+                },
+                saopaulo: {
+                    skin: '#FDBCB4',
+                    hair: '#8B4513',
+                    eyes: '#0066CC',
+                    shirt: '#DC143C',
+                    pants: '#FFFFFF',
+                    accessory: 'transparent'
+                },
+                vasco: {
+                    skin: '#C68642',
+                    hair: '#000000',
+                    eyes: '#000000',
+                    shirt: '#000000',
+                    pants: '#FFFFFF',
+                    accessory: 'transparent'
+                },
+                gremio: {
+                    skin: '#FDBCB4',
+                    hair: '#FFD700',
+                    eyes: '#0066CC',
+                    shirt: '#4169E1',
+                    pants: '#000000',
+                    accessory: 'transparent'
+                },
+                internacional: {
+                    skin: '#E0AC69',
+                    hair: '#8B0000',
+                    eyes: '#8B4513',
+                    shirt: '#DC143C',
+                    pants: '#FFFFFF',
+                    accessory: 'transparent'
+                }
+            };
+
+            const teamData = teams[team];
+            if (teamData) {
+                Object.keys(teamData).forEach(category => {
+                    applyCustomization(category, teamData[category]);
+                    
+                    // Update active buttons
+                    document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.value === teamData[category]) {
+                            btn.classList.add('active');
+                        }
+                    });
+                });
+                showToast(`⚽ Torcedor do ${team.charAt(0).toUpperCase() + team.slice(1)} criado!`);
+            }
+        }
+
+        function loadGameCharacter(character) {
+            const characters = {
+                mario: {
+                    skin: '#FDBCB4',
+                    hair: '#8B4513',
+                    eyes: '#0066CC',
+                    shirt: '#DC143C',
+                    pants: '#4169E1',
+                    accessory: '#FFD700'
+                },
+                luigi: {
+                    skin: '#FDBCB4',
+                    hair: '#8B4513',
+                    eyes: '#0066CC',
+                    shirt: '#228B22',
+                    pants: '#4169E1',
+                    accessory: '#FFD700'
+                },
+                link: {
+                    skin: '#F1C27D',
+                    hair: '#FFD700',
+                    eyes: '#0066CC',
+                    shirt: '#228B22',
+                    pants: '#8B4513',
+                    accessory: '#C0C0C0'
+                },
+                sonic: {
+                    skin: '#4169E1',
+                    hair: '#4169E1',
+                    eyes: '#228B22',
+                    shirt: '#4169E1',
+                    pants: '#4169E1',
+                    accessory: '#DC143C'
+                },
+                steve: {
+                    skin: '#C68642',
+                    hair: '#8B4513',
+                    eyes: '#FFFFFF',
+                    shirt: '#4169E1',
+                    pants: '#4169E1',
+                    accessory: 'transparent'
+                },
+                alex: {
+                    skin: '#E0AC69',
+                    hair: '#FF4500',
+                    eyes: '#228B22',
+                    shirt: '#228B22',
+                    pants: '#8B4513',
+                    accessory: 'transparent'
+                },
+                creeper: {
+                    skin: '#228B22',
+                    hair: 'transparent',
+                    eyes: '#000000',
+                    shirt: '#228B22',
+                    pants: '#228B22',
+                    accessory: 'transparent'
+                },
+                enderman: {
+                    skin: '#000000',
+                    hair: 'transparent',
+                    eyes: '#8A2BE2',
+                    shirt: '#000000',
+                    pants: '#000000',
+                    accessory: 'transparent'
+                }
+            };
+
+            const charData = characters[character];
+            if (charData) {
+                Object.keys(charData).forEach(category => {
+                    applyCustomization(category, charData[category]);
+                    
+                    // Update active buttons
+                    document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.value === charData[category]) {
+                            btn.classList.add('active');
+                        }
+                    });
+                });
+                showToast(`🎮 ${character.charAt(0).toUpperCase() + character.slice(1)} carregado!`);
+            }
+        }
+
         function downloadSkin() {
             const button = event.target.closest('.action-btn');
-            button.innerHTML = '<span class="loading"></span> Baixando...';
+            button.innerHTML = '<span class="loading"></span> Gerando PNG...';
             
             setTimeout(() => {
-                const skinData = {
-                    name: `MinecraftSkin_${Date.now()}`,
-                    skin: getComputedStyle(document.getElementById('character')).getPropertyValue('--skin-color') || '#FDBCB4',
-                    hair: getComputedStyle(document.getElementById('character')).getPropertyValue('--hair-color') || '#8B4513',
-                    eyes: getComputedStyle(document.getElementById('character')).getPropertyValue('--eye-color') || '#000000',
-                    shirt: getComputedStyle(document.getElementById('character')).getPropertyValue('--shirt-color') || '#4169E1',
-                    pants: getComputedStyle(document.getElementById('character')).getPropertyValue('--pants-color') || '#000080',
-                    accessory: getComputedStyle(document.getElementById('character')).getPropertyValue('--accessory-color') || 'transparent',
-                    created: new Date().toISOString(),
-                    version: '2.0'
-                };
-
-                const dataStr = JSON.stringify(skinData, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                const url = URL.createObjectURL(dataBlob);
+                // Create a canvas for the Minecraft skin (64x64 standard size)
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
                 
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${skinData.name}.json`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-
-                button.innerHTML = '<span>⬇️</span> Baixar';
-                triggerHaptic(button);
-                showToast('📥 Skin baixada com sucesso!');
+                // Get current skin colors
+                const skinColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--skin-color') || '#FDBCB4';
+                const hairColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--hair-color') || '#8B4513';
+                const eyeColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--eye-color') || '#000000';
+                const shirtColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--shirt-color') || '#4169E1';
+                const pantsColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--pants-color') || '#000080';
+                const accessoryColor = getComputedStyle(document.getElementById('character')).getPropertyValue('--accessory-color') || 'transparent';
+                
+                // Clear canvas with transparent background
+                ctx.clearRect(0, 0, 64, 64);
+                
+                // Draw head (front face) - 8x8 pixels at position (8,8)
+                ctx.fillStyle = skinColor;
+                ctx.fillRect(8, 8, 8, 8);
+                
+                // Draw hair on head if not transparent
+                if (hairColor !== 'transparent') {
+                    ctx.fillStyle = hairColor;
+                    ctx.fillRect(8, 8, 8, 3); // Hair on top
+                    ctx.fillRect(8, 8, 2, 8); // Hair on sides
+                    ctx.fillRect(14, 8, 2, 8);
+                }
+                
+                // Draw eyes
+                ctx.fillStyle = eyeColor;
+                ctx.fillRect(10, 10, 1, 1); // Left eye
+                ctx.fillRect(13, 10, 1, 1); // Right eye
+                
+                // Draw mouth (small line)
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(11, 12, 2, 1);
+                
+                // Draw body (front) - 8x12 pixels at position (20,20)
+                ctx.fillStyle = shirtColor;
+                ctx.fillRect(20, 20, 8, 12);
+                
+                // Draw arms (front) - 4x12 pixels each
+                ctx.fillStyle = skinColor;
+                ctx.fillRect(44, 20, 4, 12); // Right arm
+                ctx.fillRect(36, 52, 4, 12); // Left arm
+                
+                // Draw legs (front) - 4x12 pixels each
+                ctx.fillStyle = pantsColor;
+                ctx.fillRect(4, 20, 4, 12); // Right leg
+                ctx.fillRect(20, 52, 4, 12); // Left leg
+                
+                // Add accessory overlay if not transparent
+                if (accessoryColor !== 'transparent') {
+                    ctx.fillStyle = accessoryColor;
+                    ctx.globalAlpha = 0.7;
+                    ctx.fillRect(20, 20, 8, 4); // Chest accessory
+                    ctx.globalAlpha = 1.0;
+                }
+                
+                // Add some detail pixels for better appearance
+                ctx.fillStyle = '#000000';
+                // Add outline details
+                ctx.fillRect(8, 8, 8, 1); // Head top outline
+                ctx.fillRect(8, 15, 8, 1); // Head bottom outline
+                ctx.fillRect(8, 8, 1, 8); // Head left outline
+                ctx.fillRect(15, 8, 1, 8); // Head right outline
+                
+                // Convert canvas to blob and download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `MinecraftSkin_${Date.now()}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    
+                    button.innerHTML = '<span>⬇️</span> Baixar';
+                    triggerHaptic(button);
+                    showToast('🎨 Skin PNG baixada! Pronta para usar no Minecraft!');
+                }, 'image/png');
+                
             }, 1200);
         }
 
@@ -1166,5 +1421,5 @@
             setTimeout(hideTip, 5000);
         }, { once: true });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95b929e195e2344f',t:'MTc1MTkxMDQxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95b943a8f15d2912',t:'MTc1MTkxMTQ2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
